@@ -1,6 +1,6 @@
 # The Towel Programming Language
 
-[![Build Status](https://travis-ci.org/mike-jg/towel.svg?branch=master)](https://travis-ci.org/mike-jg/towel)
+[![Build Status](https://travis-ci.org/mike-jg/towel.svg?branch=master)](https://travis-ci.org/mike-jg/towel) [![Coverage Status](https://coveralls.io/repos/github/mike-jg/towel/badge.svg?branch=master)](https://coveralls.io/github/mike-jg/towel?branch=master)
 
 Towel is a stack-oriented/concatenative interpreted programming language.
 

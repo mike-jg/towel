@@ -1,0 +1,9 @@
+import <maths>
+import <io>
+
+maths.pi io.println
+
+15 maths.sqr io.println
+
+15 5 maths.min io.println
+15 5 maths.max io.print

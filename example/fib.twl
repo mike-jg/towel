@@ -1,0 +1,11 @@
+import print from <io>
+import dup from <stack>
+import swap from <stack>
+
+def fib (num -> num) {
+    dup 1 >
+    { dup 1 - fib swap 2 - fib + }
+    { } ?
+}
+
+5 fib print

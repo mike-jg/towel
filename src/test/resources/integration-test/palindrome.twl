@@ -1,0 +1,14 @@
+
+import * from <strings>
+import println from <io> as p
+import dup from <stack>
+
+def palindrome (str -> bool) {
+    lower dup reverse ==
+}
+
+"level" palindrome p
+
+"lEveL" palindrome p
+
+"nope" palindrome p

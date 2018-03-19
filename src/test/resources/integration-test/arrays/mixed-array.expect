@@ -1,0 +1,5 @@
+
+An error occurred:
+mixed-array.twl
+Error at line 6 character 8.
+Invalid type for array. Expected num, received str.

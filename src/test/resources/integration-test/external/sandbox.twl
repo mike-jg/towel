@@ -1,0 +1,10 @@
+/*
+  maths.twl imports stringlib.twl, so this makes sure it's sandboxed and not available
+  to importers of maths.twl
+
+  i.e. you cannot access maths.stringlib
+*/
+import "maths.twl"
+import <io>
+
+"test" maths.stringlib io.print

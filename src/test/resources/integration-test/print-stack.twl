@@ -1,0 +1,10 @@
+import print_stack from <debug>
+import swap, rotate, pop from <stack>
+
+1 2 3 4 5 print_stack
+
+swap print_stack swap
+
+rotate print_stack
+
+pop print_stack

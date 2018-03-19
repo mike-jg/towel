@@ -1,0 +1,13 @@
+
+import "maths.twl"
+import print, println from <io>
+
+8 maths.sqr
+
+"test"
+
+maths.double_palindrome
+
+println println
+
+print

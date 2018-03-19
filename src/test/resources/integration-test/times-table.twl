@@ -1,0 +1,35 @@
+
+import println from <io>
+import repeat from <sequences>
+import rotate, swap, dup from <stack>
+import sformat from <strings>
+
+def rule (void -> void) {
+    "------------------" println
+}
+
+def times ( num, num, num -> void ) {
+    "{0} x {1}\t=\t{2}" sformat println
+}
+
+def header (num -> void) {
+    dup "The {0} times table" sformat println
+    rule
+}
+
+def times_table (num -> void) {
+    header
+    1 let n
+    10
+    {
+        dup dup n * n rotate times
+        n 1 + let n
+    } repeat
+}
+
+1 let idx
+10
+{   rule
+    idx times_table
+    idx 1 + let idx
+} repeat

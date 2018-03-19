@@ -1,0 +1,15 @@
+import curry, exec from <sequences>
+import println, print from <io>
+
+def create_multiplier( num -> seq ) {
+    { * } curry
+}
+
+3 create_multiplier let times3
+6 create_multiplier let times6
+10 create_multiplier let times10
+
+5 times6 exec println
+5 times10 exec println
+5 times3 exec println
+5 times6 exec print

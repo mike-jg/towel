@@ -1,0 +1,12 @@
+import print from <io>
+import * from <sequences>
+import * from <stack>
+
+"wrong" let somevar
+
+def sometest {
+    "correct" let somevar
+    { somevar }
+}
+10
+sometest exec print

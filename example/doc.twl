@@ -1,0 +1,78 @@
+/* comment */
+
+/* import syntax */
+
+/* import single function */
+import print from <io>
+print
+
+/* alias single function */
+import print from <io> as myprint
+myprint
+
+/* import everything into current namespace */
+import * from <io>
+print
+
+/* import namespace with prefix */
+import <io>
+io.print
+
+
+import "test.twl" /* import file from same directory */
+
+/* types */
+/* string */
+"string"
+
+/* numbers (all doubles) */
+5
+5.6
+
+/* booleans */
+true
+false
+
+/* function definition
+    duplicate top and multiply */
+def sqr (num -> num) {
+    dup *
+}
+
+def println (str -> void) {
+    "\n" let newline /* assign variable, pops it off stack */
+    print
+    newline print /* using a variable pushes it onto the stack */
+    pop
+}
+
+def println (str, any -> void) {
+    /* blah */
+}
+
+def conditional_print(str, bool -> void) {
+
+    { print pop } /* pushes this list of instructions onto the stack aka a sequence */
+    { "you passed false" print pop pop } /* as above */
+    ? /* takes 3 args, a boolean and two sequences,
+         then conditional executes the first or the second based on the bool */
+}
+
+5 1
+> /* pushes a boolean to the stack, depending on the outcome of 5 > 1 (true in this case) */
+{ "it's higher!" print } /* executed if 5 is greater than 1 */
+{ "it's not higher!" print }  /* executed if 5 not greater than 1 */
+?
+
+true false or /* pushes bool onto the stack depending on outcome of or, in this case true */
+true false and /* pushes bool onto the stack depending on outcome of or, in this case false */
+
+5 /* iterations */
+{ 12 } /* push block to stack */
+repeat /* build in function repeats block iterations time */
+
+/* implicit push to stack followed by function call
+   then printing the top of the stack */
+5 sqr println
+
+10 5 { + } curry exec print

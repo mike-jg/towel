@@ -1,0 +1,21 @@
+
+import "stringlib.twl"
+import <stack>
+import print from <io>
+
+def sqr (num -> num) {
+    stack.dup *
+}
+
+3.142 let pi
+
+def double_palindrome( str -> bool, bool ) {
+    stack.dup
+
+    stringlib.palindrome
+
+    stack.swap
+
+    stringlib.palindrome
+
+}

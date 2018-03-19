@@ -1,0 +1,11 @@
+package towel.stdlib;
+
+/**
+ * This class file has been auto-generated
+ */
+public class ClassMap {
+
+    public final static Class[] libraryClasses = new Class[]{
+{{CLASSES}}
+    };
+}

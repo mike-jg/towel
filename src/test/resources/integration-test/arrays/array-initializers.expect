@@ -1,0 +1,12 @@
+Stack{
+--Top--
+	array type='str' values=[test, test2]
+	array type='bool' values=[true, false, true]
+	array type='num' values=[1.0, 2.0, 3.0, 1.0, 5.0]
+-- Bottom --
+}
+
+An error occurred:
+array-initializers.twl
+Error at line 17 character 1.
+Items in an array must all be of the same type.

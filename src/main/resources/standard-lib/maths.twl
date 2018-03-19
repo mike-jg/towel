@@ -1,0 +1,22 @@
+
+import <stack>
+
+3.14159265359 let pi
+
+def sqr ( num -> num ) {
+    stack.dup *
+}
+
+def min ( num, num -> num ) {
+    let a
+    let b
+
+    a b < { a } { b } ?
+}
+
+def max ( num, num -> num ) {
+    let a
+    let b
+
+    a b > { a } { b } ?
+}

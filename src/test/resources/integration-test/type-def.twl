@@ -1,0 +1,63 @@
+
+import * from <io>
+import * from <sequences>
+import * from <stack>
+import * from <strings>
+import * from <debug>
+
+def my_adder2 (num -> seq) {
+    { + } curry
+}
+
+def add (num, num -> num) {
+    +
+}
+
+def test(str, num -> void) {
+    let numb
+    let stri
+
+    numb println
+    stri println
+}
+
+def test2(str, num, bool -> void) {
+    let boole
+    let numb
+    let stri
+
+    numb println
+    stri println
+    boole println
+}
+
+/* for defs, top of stack on right */
+"test" 5 test
+
+"p" 5 true test2
+
+7 13 add println
+
+10 my_adder2 let my10adder // comment on end
+15 my10adder exec println
+
+def revprint (any -> void) {
+    // sformat, with usual param order reversed
+    dup reverse "{1} -> {0}" sformat println
+}
+
+"backwards" revprint
+
+// create an adder, which can be exec'ed to
+// add num to any other number
+def create_adder (num -> seq) {
+    { + } curry
+}
+
+5 create_adder let adder5
+10 create_adder let adder10
+
+10 adder5 exec println
+10 adder10 exec println
+10 adder5 exec println
+10 adder10 exec println

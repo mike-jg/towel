@@ -1,0 +1,19 @@
+
+import <io>
+import <arrays>
+
+
+[ "test", "my array" ]
+
+arrays.pop io.println
+
+[] 5 arrays.push
+10 arrays.push
+arrays.len io.println
+
+arrays.pop io.println
+arrays.pop io.println
+
+arrays.len io.println
+
+

@@ -1,0 +1,5 @@
+
+import <arrays>
+import <stack>
+
+[ 1 ] arrays.pop stack.pop arrays.pop

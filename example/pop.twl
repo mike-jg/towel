@@ -1,0 +1,6 @@
+
+import pop from <stack>
+import print from <io>
+
+
+10 15 25 pop + print

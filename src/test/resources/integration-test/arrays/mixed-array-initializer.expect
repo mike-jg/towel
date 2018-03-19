@@ -1,0 +1,5 @@
+
+An error occurred:
+mixed-array-initializer.twl
+Error at line 2 character 1.
+Items in an array must all be of the same type.

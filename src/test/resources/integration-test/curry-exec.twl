@@ -1,0 +1,12 @@
+import print from <io>
+import println from <io>
+import curry from <sequences>
+import exec from <sequences>
+
+10 5
+{
+    { "nested curry" { println } curry exec } exec
+    +
+}
+
+curry exec print

@@ -1,0 +1,18 @@
+
+import println from <io> as p
+import <debug>
+import <arrays>
+import curry from <sequences>
+import dup from <stack>
+
+def create_multiplier( num -> seq ) {
+    { * } curry
+}
+
+{ dup p } let print
+
+6 create_multiplier let times6
+
+[1, 2, 3, 4, 5] times6 arrays.map
+
+print arrays.map

@@ -1,0 +1,17 @@
+
+import println from <io> as p
+import pop from <stack>
+import <debug>
+
+def dump (array -> array) {
+    debug.print_stack
+}
+
+[ 1,2,3,1,5 ]
+[ true, false, true]
+[ "test", "test2" ]
+
+
+dump
+
+[ "test", false ]

@@ -1,0 +1,47 @@
+
+import * from <io>
+import * from <sequences>
+import * from <stack>
+import * from <strings>
+import * from <debug>
+
+def can_div3 (num -> bool) {
+    3 % 0 ==
+}
+
+def can_div5 (num -> bool) {
+    5 % 0 ==
+}
+
+def one (num, bool, bool -> void) {
+    let div5 let div3 let number
+
+    div5 {
+        "Buzz" println
+    } {
+        div3 {
+            "Fizz" println
+        } {
+            number println
+        } ?
+    } ?
+}
+
+def fizz_buzz (num -> void) {
+    let number
+    number can_div3 let div3
+    number can_div5 let div5
+
+    div3 div5 && {
+        "FizzBuzz" println
+    } {
+       number div3 div5 one
+    } ?
+}
+
+1 let n
+50 {
+n
+fizz_buzz
+n 1 + let n
+} repeat

@@ -32,7 +32,7 @@ public class Curry implements TowelFunction {
         Sequence seq = interpreter.stack.popSequence();
         Object anything = interpreter.stack.pop();
 
-        Node[] exprs = new Node[seq.getNodes().length + 1];
+        Node[] nodes = new Node[seq.getNodes().length + 1];
 
         // currying an array requires making a new array initializer based on the contents of the array
         // then when the sequence is eventually executed, it'll evaluate the initializer, creating the array
@@ -46,10 +46,10 @@ public class Curry implements TowelFunction {
                 initializer[i] = array.get(i);
             }
 
-            exprs[0] = new Array(new Token(Token.TokenType.ARRAY, "", "", -1, -1, -1), initializer);
+            nodes[0] = new Array(new Token(Token.TokenType.ARRAY, "", "", -1, -1, -1), initializer);
 
         } else if (anything instanceof Sequence) {
-            exprs[0] = (Sequence) anything;
+            nodes[0] = (Sequence) anything;
         } else {
 
             Token.TokenType type = null;
@@ -61,15 +61,15 @@ public class Curry implements TowelFunction {
             } else if (anything instanceof Boolean) {
                 type = Token.TokenType.BOOLEAN_LITERAL;
             } else {
-                throw new RuntimeException(String.format("Cannot curry %s.", TypeNameTranslator.get(anything.getClass().getSimpleName())));
+                throw new IllegalArgumentException(String.format("Cannot curry %s.", TypeNameTranslator.get(anything.getClass().getSimpleName())));
             }
 
-            exprs[0] = new Literal(new Token(type, anything.toString(), anything, -1, -1, -1));
+            nodes[0] = new Literal(new Token(type, anything.toString(), anything, -1, -1, -1));
         }
 
-        System.arraycopy(seq.getNodes(), 0, exprs, 1, seq.getNodes().length);
+        System.arraycopy(seq.getNodes(), 0, nodes, 1, seq.getNodes().length);
 
-        Sequence newSequence = new Sequence(seq.getToken(), exprs);
+        Sequence newSequence = new Sequence(seq.getToken(), nodes);
         interpreter.stack.push(newSequence);
     }
 }

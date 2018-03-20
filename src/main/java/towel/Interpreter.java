@@ -179,10 +179,10 @@ public class Interpreter implements NodeVisitor<Void> {
     /**
      * Compare two numbers, leave result on the top of the stack
      */
-    private void doNumberComparison(Comparison expr, double left, double right) {
+    private void doNumberComparison(Comparison node, double left, double right) {
         boolean wasTruthy;
 
-        switch (expr.getTokenType()) {
+        switch (node.getTokenType()) {
             case LESS_THAN:
                 wasTruthy = left < right;
                 break;
@@ -208,7 +208,7 @@ public class Interpreter implements NodeVisitor<Void> {
                 break;
 
             default:
-                throw new InterpreterError("Invalid comparison: " + expr, expr.getToken());
+                throw new InterpreterError("Invalid comparison: " + node, node.getToken());
         }
 
         stack.push(wasTruthy);
@@ -217,39 +217,39 @@ public class Interpreter implements NodeVisitor<Void> {
     /**
      * Compare two strings, leave result on the top of the stack
      */
-    private void doStringComparison(Comparison expr, String left, String right) {
-        if (expr.getTokenType() == Token.TokenType.EQUAL_EQUAL) {
+    private void doStringComparison(Comparison node, String left, String right) {
+        if (node.getTokenType() == Token.TokenType.EQUAL_EQUAL) {
             stack.push(left.equals(right));
             return;
         }
-        if (expr.getTokenType() == Token.TokenType.NOT_EQUAL) {
+        if (node.getTokenType() == Token.TokenType.NOT_EQUAL) {
             stack.push(!left.equals(right));
             return;
         }
-        throw new InterpreterError("Strings can only be checked with == and !=.", expr.getToken());
+        throw new InterpreterError("Strings can only be checked with == and !=.", node.getToken());
     }
 
     /**
      * Compare two booleans, leave result on the top of the stack
      */
-    private void doBooleanComparison(Comparison expr, boolean left, boolean right) {
-        if (expr.getTokenType() == Token.TokenType.EQUAL_EQUAL) {
+    private void doBooleanComparison(Comparison node, boolean left, boolean right) {
+        if (node.getTokenType() == Token.TokenType.EQUAL_EQUAL) {
             stack.push(left == right);
             return;
         }
-        if (expr.getTokenType() == Token.TokenType.NOT_EQUAL) {
+        if (node.getTokenType() == Token.TokenType.NOT_EQUAL) {
             stack.push(left != right);
             return;
         }
-        if (expr.getTokenType() == Token.TokenType.OR) {
+        if (node.getTokenType() == Token.TokenType.OR) {
             stack.push(left || right);
             return;
         }
-        if (expr.getTokenType() == Token.TokenType.AND) {
+        if (node.getTokenType() == Token.TokenType.AND) {
             stack.push(left && right);
             return;
         }
-        throw new InterpreterError("Booleans can only be checked with '==', '!=', '||' and '&&'.", expr.getToken());
+        throw new InterpreterError("Booleans can only be checked with '==', '!=', '||' and '&&'.", node.getToken());
     }
 
     @Override
@@ -266,12 +266,12 @@ public class Interpreter implements NodeVisitor<Void> {
     /**
      * This condition has two branches, e.g. a 'then' and an 'else'
      */
-    private void branchedCondition(Condition expr) {
+    private void branchedCondition(Condition node) {
         stack.assertState(new Class[]{
                 Sequence.class,
                 Sequence.class,
                 Boolean.class
-        }, Stack.Conditions.PRE, expr.getToken());
+        }, Stack.Conditions.PRE, node.getToken());
 
         Sequence elseBranch = stack.popSequence();
         Sequence thenBranch = stack.popSequence();
@@ -288,11 +288,11 @@ public class Interpreter implements NodeVisitor<Void> {
     /**
      * This condition has one branch, so just a 'then', if the condition fails then nothing happens
      */
-    private void singleBranchCondition(Condition expr) {
+    private void singleBranchCondition(Condition node) {
         stack.assertState(new Class[]{
                 Sequence.class,
                 Boolean.class
-        }, Stack.Conditions.PRE, expr.getToken());
+        }, Stack.Conditions.PRE, node.getToken());
 
         Sequence thenBranch = stack.popSequence();
         boolean condition = stack.popBoolean();
@@ -347,7 +347,7 @@ public class Interpreter implements NodeVisitor<Void> {
         Object target = targetNamespace.get(identifierNode.getName());
 
         if (!(target instanceof TowelFunction)) {
-            throw new RuntimeException("Not a valid function.");
+            throw new IllegalArgumentException("Not a valid function.");
         }
 
         try {

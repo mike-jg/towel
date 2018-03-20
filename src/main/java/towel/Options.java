@@ -74,7 +74,7 @@ class Options {
 
     private void assertParsed() {
         if (!parsed) {
-            throw new RuntimeException("Options haven't been parsed yet. Call parse() first.");
+            throw new IllegalStateException("Options haven't been parsed yet. Call parse() first.");
         }
     }
 

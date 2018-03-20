@@ -58,10 +58,10 @@ class AstPrinter implements NodeVisitor<Void> {
         return null;
     }
 
-    private void printExpressions(Node expr[]) {
-        for (Node e : expr) {
-            e.accept(this);
-            if (e != expr[expr.length - 1]) {
+    private void printNodes(Node nodes[]) {
+        for (Node node : nodes) {
+            node.accept(this);
+            if (node != nodes[nodes.length - 1]) {
                 append("\n");
             }
         }
@@ -112,7 +112,7 @@ class AstPrinter implements NodeVisitor<Void> {
 
         append("(SEQUENCE " + sequenceNode.getTokenType().toString());
         indent();
-        printExpressions(sequenceNode.getNodes());
+        printNodes(sequenceNode.getNodes());
         unindent();
         append(")");
 
@@ -141,7 +141,7 @@ class AstPrinter implements NodeVisitor<Void> {
         parenthesize(functionNode.getTokenType().toString(), functionNode.getLiteralAsString());
         indent();
 
-        printExpressions(functionNode.getBody());
+        printNodes(functionNode.getBody());
 
         unindent(2);
         append(")");

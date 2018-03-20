@@ -62,8 +62,8 @@ class Parser {
             }
 
             try {
-                Node expr = doParse(t);
-                nodes.add(expr);
+                Node node = doParse(t);
+                nodes.add(node);
             } catch (ParseError e) {
                 reporter.error(e.getMessage(), e.token.getLine(), e.token.getCharacter());
                 return null;
@@ -222,8 +222,8 @@ class Parser {
         expect(Token.TokenType.LEFT_BRACE, "Expecting '{' after function signature definition.");
 
         while (!eof() && !is(peek(), Token.TokenType.RIGHT_BRACE)) {
-            Node expr = doParse(advance());
-            bodyNodes.add(expr);
+            Node node = doParse(advance());
+            bodyNodes.add(node);
         }
 
         if (eof()) {
@@ -253,8 +253,8 @@ class Parser {
         List<Node> nodes = new ArrayList<>();
 
         while (!eof() && !is(peek(), Token.TokenType.RIGHT_BRACE)) {
-            Node expr = doParse(advance());
-            nodes.add(expr);
+            Node node = doParse(advance());
+            nodes.add(node);
         }
 
         if (eof()) {

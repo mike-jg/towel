@@ -56,7 +56,7 @@ public class Namespace {
             }
         }
 
-        throw new RuntimeException(String.format("Invalid namespace requested '%s'.", name));
+        throw new IllegalArgumentException(String.format("Invalid namespace requested '%s'.", name));
     }
 
     public Object get(String name) {

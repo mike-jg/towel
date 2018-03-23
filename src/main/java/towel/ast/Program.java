@@ -7,17 +7,28 @@ public class Program implements Node {
 
     private final String namespaceName;
     private final List<Node> nodes;
-    private final List<FileImport> fileImports;
     private final List<Import> imports;
-    private boolean isTopLevel = true;
+    private boolean isRootNode = true;
+    private ProgramType programType = ProgramType.USER;
+
+    public enum ProgramType {
+        INTERNAL, USER
+    }
 
     public final static String DEFAULT_NAMESPACE = "DEFAULTNS";
 
-    public Program(String namespaceName, List<Node> nodes, List<Import> imports, List<FileImport> fileImports) {
+    public Program(String namespaceName, List<Node> nodes, List<Import> imports) {
         this.namespaceName = Objects.requireNonNull(namespaceName);
         this.nodes = Objects.requireNonNull(nodes);
-        this.fileImports = Objects.requireNonNull(fileImports);
         this.imports = Objects.requireNonNull(imports);
+    }
+
+    public boolean isInternal() {
+        return programType == ProgramType.INTERNAL;
+    }
+
+    public void setProgramType(ProgramType programType) {
+        this.programType = programType;
     }
 
     public boolean isDefaultNamespace() {
@@ -29,12 +40,12 @@ public class Program implements Node {
      *
      * If this isn't top level, it means it's an import
      */
-    public boolean isTopLevel() {
-        return isTopLevel;
+    public boolean isRootNode() {
+        return isRootNode;
     }
 
-    public void setTopLevel(boolean topLevel) {
-        isTopLevel = topLevel;
+    public void notRootNode() {
+        isRootNode = false;
     }
 
     public String getNamespace() {
@@ -43,10 +54,6 @@ public class Program implements Node {
 
     public List<Node> getNodes() {
         return nodes;
-    }
-
-    public List<FileImport> getFileImports() {
-        return fileImports;
     }
 
     public List<Import> getImports() {

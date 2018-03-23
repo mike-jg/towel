@@ -24,10 +24,10 @@ public class Push implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
+    public void call(Interpreter interpreter) {
 
-        Object value = interpreter.stack.pop();
-        TowelArray array = interpreter.stack.popArray();
+        Object value = interpreter.getStack().pop();
+        TowelArray array = interpreter.getStack().popArray();
 
         try {
             doPush(array, value, interpreter);
@@ -39,12 +39,12 @@ public class Push implements TowelFunction {
     private void doPush(TowelArray array, Object value, Interpreter interpreter) {
         if (array.isInitialized()) {
             array.push(value);
-            interpreter.stack.push(array);
+            interpreter.getStack().push(array);
             return;
         }
 
         array = TowelArray.of(value);
-        interpreter.stack.push(array);
+        interpreter.getStack().push(array);
     }
 }
 

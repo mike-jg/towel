@@ -30,9 +30,9 @@ public class InputNumber implements TowelFunction, RequiresScanner, RequiresPrin
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        outputStream.print(interpreter.stack.popString());
-        interpreter.stack.push(scanner.nextDouble());
+    public void call(Interpreter interpreter) {
+        outputStream.print(interpreter.getStack().popString());
+        interpreter.getStack().push(scanner.nextDouble());
     }
 
     @Override

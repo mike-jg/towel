@@ -1,0 +1,15 @@
+
+// make sure this isn't falsely classified as a circular reference
+
+import palindrome from "stringlib.twl" as myp
+import palindrome from "stringlib.twl" as myp2
+import palindrome from "stringlib.twl"
+import "stringlib.twl"
+
+import <io>
+
+"level" myp io.println
+"level" myp2 io.println
+"level" palindrome io.println
+"level" stringlib.palindrome io.print
+

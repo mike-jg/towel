@@ -19,7 +19,7 @@ public class InputString implements TowelFunction, RequiresPrintStream, Requires
 
     @Override
     public Class[] getPreConditions() {
-        return new Class[]{
+        return new Class[] {
                 String.class
         };
     }
@@ -30,9 +30,9 @@ public class InputString implements TowelFunction, RequiresPrintStream, Requires
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        outputStream.print(interpreter.stack.popString());
-        interpreter.stack.push(scanner.next());
+    public void call(Interpreter interpreter) {
+        outputStream.print(interpreter.getStack().popString());
+        interpreter.getStack().push(scanner.next());
     }
 
     @Override

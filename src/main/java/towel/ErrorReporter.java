@@ -5,6 +5,10 @@ package towel;
  */
 public interface ErrorReporter {
 
+    boolean hasErrors();
+
+    boolean hasNotices();
+
     void notice(String message);
 
     void notice(String message, int line, int character);

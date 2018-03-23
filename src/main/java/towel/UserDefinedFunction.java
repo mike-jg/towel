@@ -31,7 +31,7 @@ public class UserDefinedFunction implements TowelFunction, ExecuteInOriginalCont
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
+    public void call(Interpreter interpreter) {
         for (Node e : body) {
             e.accept(interpreter);
         }

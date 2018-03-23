@@ -15,8 +15,8 @@ import towel.TowelFunction;
 public class Pop implements TowelFunction {
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        interpreter.stack.pop();
+    public void call(Interpreter interpreter) {
+        interpreter.getStack().pop();
     }
 
     @Override

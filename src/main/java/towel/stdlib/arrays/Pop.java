@@ -23,14 +23,14 @@ public class Pop implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        TowelArray array = interpreter.stack.popArray();
-        interpreter.stack.push(array);
+    public void call(Interpreter interpreter) {
+        TowelArray array = interpreter.getStack().popArray();
+        interpreter.getStack().push(array);
 
         if (array.isEmpty()) {
             throw new FunctionExecutionError("Cannot pop array of size 0.");
         }
-        interpreter.stack.push(array.pop());
+        interpreter.getStack().push(array.pop());
     }
 }
 

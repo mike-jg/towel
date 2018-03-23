@@ -165,20 +165,14 @@ class AstPrinter implements NodeVisitor<Void> {
         parenthesize(target);
         append("\n");
 
-        parenthesize("FROM", importNode.getNamespace());
-        if (importNode.isAliased()) {
+        parenthesize("FROM", ImportNodeResolver.wrap(importNode).getNamespace());
+        if (ImportNodeResolver.wrap(importNode).isAliased()) {
             append("\n");
             parenthesize("AS", importNode.getAlias());
         }
 
         unindent();
         append(")");
-        return null;
-    }
-
-    @Override
-    public Void visit(FileImport fileImportNode) {
-        parenthesize(fileImportNode.getTokenType().toString(), fileImportNode.getFile());
         return null;
     }
 
@@ -201,15 +195,13 @@ class AstPrinter implements NodeVisitor<Void> {
 
     @Override
     public Void visit(Array arrayNode) {
-        append("(ARRAY");
-        indent();
+        append("(ARRAY ");
         for (int i = 0; i < arrayNode.getContents().length; i++) {
             append(arrayNode.getContents()[i].toString());
             if (i + 2 <= arrayNode.getContents().length) {
-                append(" ");
+                append(", ");
             }
         }
-        unindent();
         append(")");
         return null;
     }

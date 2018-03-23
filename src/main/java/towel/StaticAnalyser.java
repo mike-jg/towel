@@ -19,10 +19,10 @@ import java.util.Objects;
  */
 public class StaticAnalyser implements NodeVisitor<Void> {
 
+    private static final String IDENTIFIER_RENAME_SCHEME = "%s$%s";
+
     private final Program program;
     private final ErrorReporter reporter;
-
-    private final IdentifierRenameScheme identifierRenameScheme = new IdentifierRenameScheme();
 
     /**
      * All of the identifiers what have been renamed in the current scope
@@ -33,6 +33,7 @@ public class StaticAnalyser implements NodeVisitor<Void> {
      * Currently in a function?
      */
     private boolean isInFunction = false;
+
     private String currentFunctionName = null;
 
     StaticAnalyser(Program program, ErrorReporter reporter) {
@@ -42,6 +43,10 @@ public class StaticAnalyser implements NodeVisitor<Void> {
 
     public void performAnalysis() {
         program.accept(this);
+    }
+
+    private void rename(Renameable identifier, String scope) {
+        identifier.setName(String.format(IDENTIFIER_RENAME_SCHEME, scope, identifier.getOriginalName()));
     }
 
     @Override
@@ -123,7 +128,7 @@ public class StaticAnalyser implements NodeVisitor<Void> {
         // when it is executed in a different scope
 
         if (isInFunction && identifiersRenamedInScope.containsKey(identifierNode.getName())) {
-            identifierRenameScheme.rename(identifierNode, currentFunctionName);
+            rename(identifierNode, currentFunctionName);
         }
 
         String name = identifierNode.getName();
@@ -131,11 +136,6 @@ public class StaticAnalyser implements NodeVisitor<Void> {
             name = identifierNode.getNamespace() + "." + name;
         }
 
-        return null;
-    }
-
-    @Override
-    public Void visit(FileImport fileImportNode) {
         return null;
     }
 
@@ -154,7 +154,7 @@ public class StaticAnalyser implements NodeVisitor<Void> {
 
         if (isInFunction) {
             String original = letNode.getLexeme();
-            identifierRenameScheme.rename(letNode, currentFunctionName);
+            rename(letNode, currentFunctionName);
             identifiersRenamedInScope.put(original, letNode.getName());
         }
         return null;

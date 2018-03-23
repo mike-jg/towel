@@ -1,0 +1,8 @@
+import "privatesinc.twl"
+import <io>
+
+// ok
+privatesinc.mypublic io.println
+
+// bad
+privatesinc.myprivate io.println

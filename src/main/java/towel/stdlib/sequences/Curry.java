@@ -28,9 +28,9 @@ public class Curry implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Sequence seq = interpreter.stack.popSequence();
-        Object anything = interpreter.stack.pop();
+    public void call(Interpreter interpreter) {
+        Sequence seq = interpreter.getStack().popSequence();
+        Object anything = interpreter.getStack().pop();
 
         Node[] nodes = new Node[seq.getNodes().length + 1];
 
@@ -70,6 +70,6 @@ public class Curry implements TowelFunction {
         System.arraycopy(seq.getNodes(), 0, nodes, 1, seq.getNodes().length);
 
         Sequence newSequence = new Sequence(seq.getToken(), nodes);
-        interpreter.stack.push(newSequence);
+        interpreter.getStack().push(newSequence);
     }
 }

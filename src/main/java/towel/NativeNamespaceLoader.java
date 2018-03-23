@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -16,12 +17,12 @@ public class NativeNamespaceLoader implements NamespaceLoader {
     private final PrintStream stream;
     private final Scanner scanner;
 
-    private Map<String, Map<String, Class>> libraryMap = new HashMap<>();
-    private Map<String, Map<String, TowelFunction>> instanceMap = new HashMap<>();
+    private final Map<String, Map<String, Class>> libraryMap = new HashMap<>();
+    private final Map<String, Map<String, TowelFunction>> instanceMap = new HashMap<>();
 
     public NativeNamespaceLoader(PrintStream stream, Scanner scanner) {
-        this.stream = stream;
-        this.scanner = scanner;
+        this.stream = Objects.requireNonNull(stream);
+        this.scanner = Objects.requireNonNull(scanner);
         for (Class c : ClassMap.libraryClasses) {
             LibraryMetadata attribs = (LibraryMetadata) c.getAnnotation(LibraryMetadata.class);
 

@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static towel.Assertions.assertStartsWith;
-import static towel.FileAwareLoggingErrorReporter.DEFAULT_LOG_NAME;
+import static towel.LoggingErrorReporter.DEFAULT_LOG_NAME;
 
 public class LexerTest {
 
@@ -34,14 +34,15 @@ public class LexerTest {
     public static Stream<Arguments> lexerProvider() {
         return Stream.of(
                 Arguments.of(" [  ] array ", Arrays.asList(Token.TokenType.LEFT_SQ_BRACKET, Token.TokenType.RIGHT_SQ_BRACKET, Token.TokenType.ARRAY, Token.TokenType.EOF)),
-                Arguments.of(" . ", Arrays.asList(Token.TokenType.DOT, Token.TokenType.EOF))
+                Arguments.of(" . ", Arrays.asList(Token.TokenType.DOT, Token.TokenType.EOF)),
+                Arguments.of(" public def ", Arrays.asList(Token.TokenType.PUBLIC, Token.TokenType.DEF, Token.TokenType.EOF))
         );
     }
 
     @ParameterizedTest
     @MethodSource("badLexerProvider")
     public void testLexerErrors(String expect, String code) {
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
         Lexer lexer = createLexer(code, reporter);
         List<Token> tokens = lexer.tokenize();
 
@@ -225,7 +226,7 @@ public class LexerTest {
 
     @Test
     public void testUnterminatedStringLiteral() {
-        FileAwareLoggingErrorReporter l = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter l = new LoggingErrorReporter();
         Lexer lexer = createLexer("\"string", l);
         lexer.tokenize();
 
@@ -235,7 +236,7 @@ public class LexerTest {
 
     @Test
     public void testBadChar() {
-        FileAwareLoggingErrorReporter l = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter l = new LoggingErrorReporter();
         Lexer lexer = createLexer("\"string\" 4 5 ` ", l);
         lexer.tokenize();
 

@@ -1,0 +1,10 @@
+
+// maths is defined in an internal .twl file,
+// as well as some java classes
+
+import <maths>
+import <io>
+
+5 5 maths.random io.println
+
+maths.pi io.print

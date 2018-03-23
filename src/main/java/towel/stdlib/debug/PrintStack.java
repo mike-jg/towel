@@ -26,8 +26,8 @@ public class PrintStack implements TowelFunction, RequiresPrintStream {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        ps.print(interpreter.stack.toString() + "\n");
+    public void call(Interpreter interpreter) {
+        ps.print(interpreter.getStack().toString() + "\n");
     }
 
     @Override

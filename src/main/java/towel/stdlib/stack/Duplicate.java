@@ -15,10 +15,10 @@ import towel.TowelFunction;
 public class Duplicate implements TowelFunction {
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Object top = interpreter.stack.pop();
-        interpreter.stack.push(top);
-        interpreter.stack.push(top);
+    public void call(Interpreter interpreter) {
+        Object top = interpreter.getStack().pop();
+        interpreter.getStack().push(top);
+        interpreter.getStack().push(top);
     }
 
     @Override

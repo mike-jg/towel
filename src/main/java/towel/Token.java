@@ -2,23 +2,31 @@ package towel;
 
 public class Token {
 
-    public static enum TokenType {
+    public enum TokenType {
 
         LEFT_BRACE, RIGHT_BRACE,
         LEFT_BRACKET, RIGHT_BRACKET,
         LEFT_SQ_BRACKET, RIGHT_SQ_BRACKET,
+
+        // comparison
         LESS_THAN, GREATER_THAN,
         EQUAL, QUESTION_MARK, DOUBLE_QUESTION_MARK,
-        PLUS, MINUS, STAR, SLASH, MOD, AND, OR,
-        COMMA, LET, DOT,
 
+        COMMA, DOT,
+
+        // binary ops
+        PLUS, MINUS, STAR, SLASH, MOD, AND, OR,
         ARROW, LESS_THAN_EQUAL, GREATER_THAN_EQUAL, EQUAL_EQUAL, NOT_EQUAL,
 
         IDENTIFIER, STRING_LITERAL, NUMBER_LITERAL, BOOLEAN_LITERAL,
 
-        IMPORT, FROM, AS, DEF,
+        // importing
+        IMPORT, FROM, AS,
 
-        // type defs
+        // function def
+        PUBLIC, DEF, LET,
+
+        // type definitions
         NUM, BOOL, STR, SEQ, VOID, ANY, ARRAY,
 
         EOF,
@@ -31,12 +39,12 @@ public class Token {
 
     /**
      * How the token appears in the source
-     * <p>
-     * e.g
-     * +
-     * "this is a string"
-     * [
-     * ]
+     *
+     * e.g.:
+     * <li> +
+     * <li> "this is a string"
+     * <li> [
+     * <li> ]
      */
     private String lexeme;
 

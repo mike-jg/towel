@@ -33,10 +33,10 @@ public class Swap implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Object a = interpreter.stack.pop();
-        Object b = interpreter.stack.pop();
-        interpreter.stack.push(a);
-        interpreter.stack.push(b);
+    public void call(Interpreter interpreter) {
+        Object a = interpreter.getStack().pop();
+        Object b = interpreter.getStack().pop();
+        interpreter.getStack().push(a);
+        interpreter.getStack().push(b);
     }
 }

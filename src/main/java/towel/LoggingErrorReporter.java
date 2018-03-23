@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * An error reporter that logs the messages it receives
  */
-public class FileAwareLoggingErrorReporter implements ErrorReporter {
+public class LoggingErrorReporter implements ContextualErrorReporter {
 
     private Map<String, List<LogEntry>> notices = new HashMap<>();
     private Map<String, List<LogEntry>> errors = new HashMap<>();
@@ -17,7 +17,7 @@ public class FileAwareLoggingErrorReporter implements ErrorReporter {
 
     private String file = DEFAULT_LOG_NAME;
 
-    public FileAwareLoggingErrorReporter() {
+    public LoggingErrorReporter() {
         notices.put(DEFAULT_LOG_NAME, new ArrayList<>());
         errors.put(DEFAULT_LOG_NAME, new ArrayList<>());
     }
@@ -45,8 +45,8 @@ public class FileAwareLoggingErrorReporter implements ErrorReporter {
         getLogFor(type).add(new LogEntry(type, message, line, character));
     }
 
-    public void setCurrentFile(String file) {
-        this.file = file;
+    public void setContext(String context) {
+        this.file = context;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class FileAwareLoggingErrorReporter implements ErrorReporter {
     }
 
     public boolean hasNotices() {
-        for (Map.Entry<String, List<FileAwareLoggingErrorReporter.LogEntry>> errorsInFile : notices.entrySet()) {
+        for (Map.Entry<String, List<LoggingErrorReporter.LogEntry>> errorsInFile : notices.entrySet()) {
             if (!errorsInFile.getValue().isEmpty()) {
                 return true;
             }
@@ -79,7 +79,7 @@ public class FileAwareLoggingErrorReporter implements ErrorReporter {
     }
 
     public boolean hasErrors() {
-        for (Map.Entry<String, List<FileAwareLoggingErrorReporter.LogEntry>> errorsInFile : errors.entrySet()) {
+        for (Map.Entry<String, List<LoggingErrorReporter.LogEntry>> errorsInFile : errors.entrySet()) {
             if (!errorsInFile.getValue().isEmpty()) {
                 return true;
             }

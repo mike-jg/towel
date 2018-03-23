@@ -1,8 +1,6 @@
 package towel;
 
-import towel.ast.FileImport;
 import towel.ast.Import;
-import towel.ast.Node;
 import towel.ast.Program;
 
 import java.io.File;
@@ -12,10 +10,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Scanner;
 
 /**
  * Run the full 'pipeline' on a single source file
@@ -26,15 +23,14 @@ import java.util.Objects;
  * it needs revisiting and tidying up
  *
  * @todo rethink how this works in general
- * @todo rethink how imports work specifically
  */
 public class SourceFileInterpreter {
 
     private PrintStream outputStream;
-    private FileAwareLoggingErrorReporter reporter;
-    private NamespaceLoaderStack loader = new NamespaceLoaderStack();
+    private ContextualErrorReporter reporter;
+    private NamespaceLoader loader;
     private Options options;
-    private Map<String, Boolean> fileLoadRequests = new HashMap<>();
+    private DependencyGraph dependencyGraph;
     private final static String STD_LIB_PATH = Paths.get("src/main/resources/standard-lib/").toAbsolutePath().toString();
 
     private class ProgramError extends RuntimeException {
@@ -42,16 +38,17 @@ public class SourceFileInterpreter {
         }
     }
 
-    public SourceFileInterpreter(PrintStream outputStream, FileAwareLoggingErrorReporter reporter, NamespaceLoader loader, Options options) {
+    public SourceFileInterpreter(PrintStream outputStream, Scanner scanner, ContextualErrorReporter reporter, Options options) {
         this.outputStream = Objects.requireNonNull(outputStream);
         this.reporter = Objects.requireNonNull(reporter);
-        this.loader.push(Objects.requireNonNull(loader));
+        this.loader = new NativeNamespaceLoader(outputStream, scanner);
         this.options = Objects.requireNonNull(options);
     }
 
     public void interpret() throws IOException {
         try {
-            Program program = createProgram(Paths.get(options.getFilename()));
+            dependencyGraph = new DependencyGraph(Paths.get(options.getFilename()).getFileName().toString());
+            final Program program = createProgram(Paths.get(options.getFilename()));
 
             if (options.printAst()) {
                 printAst(options, program);
@@ -64,6 +61,84 @@ public class SourceFileInterpreter {
         }
     }
 
+    private Program createProgram(Path file) throws IOException {
+
+        String filename = file.getFileName().toString();
+        String source = readFile(file.toAbsolutePath().toString());
+        reporter.setContext(filename);
+
+        List<Token> tokens = lex(source);
+
+        Program program = parse(tokens, file.getFileName().toString().replace(".twl", ""));
+
+        List<Import> imports = program.getImports();
+
+        for (Import importNode : imports) {
+            int replacementLocation = program.getNodes().indexOf(importNode);
+
+            Program subProgram = parseImportIntoSubProgram(importNode, file);
+
+            // Add the parsed imported code just before the Import
+            // This allows the Interpreter to go through the AST in order, and
+            // it'll naturally get to the AST for the import before the import itself
+
+            // It can then package the parsed program node into a 'NamespaceLoader', which will handle
+            // importing the names based on the import
+            if (subProgram != null) {
+                subProgram.notRootNode();
+                program.getNodes().add(replacementLocation, subProgram);
+            }
+        }
+
+        reporter.setContext(filename);
+
+        analyze(program);
+
+        return program;
+    }
+
+    private Program parseImportIntoSubProgram(Import importNode, Path rootFile) throws IOException {
+
+        Program subProgram = null;
+
+        ImportNodeResolver adapter = ImportNodeResolver.wrap(importNode);
+
+        if (adapter.isExternal()) {
+
+            // External file import
+            // Looks in the current directory for a file with a matching name
+
+            reporter.setContext(adapter.getNamespace());
+
+            assertNoCircularDependencies(rootFile.getFileName().toString(), adapter.getNamespace());
+
+            subProgram = createProgram(Paths.get(getPathToFile(rootFile), adapter.getFileName()));
+        } else {
+            // Internal import, so this could be either a pure Java import, or importing a file
+            // contained in the 'resources/standard-lib' directory. Java imports are handled
+            // purely in the interpreter
+            //
+            // This part checks if it's a file in the resources directory, if it is
+            // it parses it into a Program node
+            //
+            // This is for 'internal' libraries which are implemented as .twl files
+
+            Path pathToFile = Paths.get(STD_LIB_PATH, adapter.getFileName());
+            reporter.setContext("Internal source file: " + adapter.getFileName());
+            File libraryFile = new File(pathToFile.toString());
+            if (libraryFile.exists() && !libraryFile.isDirectory()) {
+                subProgram = createProgram(pathToFile);
+                subProgram.setProgramType(Program.ProgramType.INTERNAL);
+            }
+        }
+
+        return subProgram;
+    }
+
+    private String getPathToFile(Path fileName) {
+        return fileName.getParent().toAbsolutePath().toString();
+    }
+
     private void assertErrorFree() {
         if (reporter.hasErrors()) {
             throw new ProgramError();
@@ -71,99 +146,18 @@ public class SourceFileInterpreter {
     }
 
     /**
-     * If a file gets imported twice, assume that we have a circular dependency
+     * Check for a circular dependency
+     *
+     * @param filename   the file doing the import
+     * @param importName the file being imported
      */
-    private void assertNoCircularDependencies(String filename) {
-        if (fileLoadRequests.containsKey(filename)) {
-            reporter.error(String.format("Circular reference detected when importing '%s'.", filename));
+    private void assertNoCircularDependencies(String filename, String importName) {
+        dependencyGraph.addDependency(filename, importName);
+
+        if (dependencyGraph.hasCircularDependency()) {
+            reporter.error(String.format("Circular reference detected when importing '%s' from '%s'.", importName, filename));
             assertErrorFree();
         }
-
-        fileLoadRequests.put(filename, true);
-    }
-
-    private Program createProgram(Path file) throws IOException {
-
-        String filename = file.getFileName().toString();
-
-        String source = readFile(file.toAbsolutePath().toString());
-
-        reporter.setCurrentFile(filename);
-
-        List<Token> tokens = lex(source);
-
-        Program program = parse(tokens, file.getFileName().toString().replace(".twl", ""));
-
-        List<FileImport> fileImports = program.getFileImports();
-        List<Import> imports = program.getImports();
-        Node[] allImports = new Node[fileImports.size() + imports.size()];
-
-        System.arraycopy(imports.toArray(new Node[0]), 0, allImports, 0, imports.size());
-        System.arraycopy(fileImports.toArray(new Node[0]), 0, allImports, imports.size(), fileImports.size());
-
-        /* @todo make the imports less of a mess
-
-            Consider parsing them all to a normalized form, rather than 'Import' and 'FileImport', which can handle:
-
-            IMPORT (target, target, target) FROM ( <namespace> | "file" ) ( as name, name, name )
-
-            When the AST gets placed in here, don't make it a Program node, use a new node type that can
-            hold metadata about the imported AST. That way the interpreter gets a new visit method it can use to make sense
-            of what's going on, maybe?
-
-            The interpreter can use this to determine what to import from the resulting environment
-
-            It would also be nice to allow standard library namespaces to be defined as a mix of
-            Java and 'twl' files
-         */
-
-        for (Node importNode : allImports) {
-            int replacementLocation = program.getNodes().indexOf(importNode);
-            Program subProgram = null;
-
-            if (importNode instanceof FileImport) {
-
-                // FileImport is an import from a user-supplied source file,
-                // this will look in the same folder as the current source file
-
-                FileImport fileImport = (FileImport) importNode;
-                assertNoCircularDependencies(fileImport.getFile());
-
-                subProgram = createProgram(Paths.get(getPathToFile(file), fileImport.getFile()));
-            } else if (importNode instanceof Import) {
-
-                // Internal import, so this could be either a pure Java import, or importing a file
-                // contained in the 'resources/standard-lib' directory. Java imports are handled
-                // purely in the interpreter
-                //
-                // This part checks if it's a file in the resources directory, if it is
-                // it parses it and replaces the Import node with the parsed Program node
-
-                Import _import = (Import) importNode;
-                Path pathToFile = Paths.get(STD_LIB_PATH, _import.getNamespace() + ".twl");
-                File libraryFile = new File(pathToFile.toString());
-                if (libraryFile.exists() && !libraryFile.isDirectory()) {
-                    subProgram = createProgram(pathToFile);
-                }
-            }
-
-            // Replace the 'import' with the AST of the imported file
-            // This causes some issues, such as losing all context of the import, meaning
-            // once clauses are parsed into the FileImport node, they'll be lost here
-            // This needs correcting, as it currently makes file imports poor
-            if (subProgram != null) {
-                subProgram.setTopLevel(false);
-                program.getNodes().set(replacementLocation, subProgram);
-            }
-        }
-
-        analyze(program);
-
-        return program;
-    }
-
-    private String getPathToFile(Path fileName) {
-        return fileName.getParent().toAbsolutePath().toString();
     }
 
     private List<Token> lex(String source) {

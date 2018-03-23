@@ -26,9 +26,9 @@ public class Map implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Sequence sequence = interpreter.stack.popSequence();
-        TowelArray array = interpreter.stack.popArray();
+    public void call(Interpreter interpreter) {
+        Sequence sequence = interpreter.getStack().popSequence();
+        TowelArray array = interpreter.getStack().popArray();
 
         // one by one, push each value of the array onto the stack
         // execute the whole sequence against it, and the overwrite
@@ -36,13 +36,13 @@ public class Map implements TowelFunction {
 
         for (int i = 0; i < array.size(); i++) {
             Object val = array.get(i);
-            interpreter.stack.push(val);
+            interpreter.getStack().push(val);
             for (Node node : sequence.getNodes()) {
                 node.accept(interpreter);
             }
-            array.set(i, interpreter.stack.popAsType(val.getClass()));
+            array.set(i, interpreter.getStack().pop());
         }
 
-        interpreter.stack.push(array);
+        interpreter.getStack().push(array);
     }
 }

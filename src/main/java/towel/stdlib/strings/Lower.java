@@ -15,9 +15,9 @@ import towel.TowelFunction;
 public class Lower implements TowelFunction {
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        String target = interpreter.stack.popString();
-        interpreter.stack.push(target.toLowerCase());
+    public void call(Interpreter interpreter) {
+        String target = interpreter.getStack().popString();
+        interpreter.getStack().push(target.toLowerCase());
     }
 
     @Override

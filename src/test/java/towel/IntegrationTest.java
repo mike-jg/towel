@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mockito;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 
 public class IntegrationTest {
 
@@ -30,6 +32,33 @@ public class IntegrationTest {
         App.main(new String[]{});
 
         assertTrue(outputStream.toString().startsWith("Usage: towel"));
+    }
+
+    @Test
+    public void testCallsGenerator() throws IOException {
+        setStreams();
+
+        StdLibraryMapGenerator mock = Mockito.mock(StdLibraryMapGenerator.class);
+
+        App.setPrintStream(printStream);
+        App.setStdLibraryMapGenerator(mock);
+        App.main(new String[]{
+                "--generate-std-map"
+        });
+
+        verify(mock).generate();
+    }
+
+    @Test
+    public void testBadFile() throws IOException {
+        setStreams();
+
+        App.setPrintStream(printStream);
+        App.main(new String[]{
+                "asdlaksjdlaks.twl"
+        });
+
+        assertTrue(outputStream.toString().startsWith("Error reading input file: asdlaksjdlaks.twl"));
     }
 
     private void setStreams() throws UnsupportedEncodingException {

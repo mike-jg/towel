@@ -1,5 +1,0 @@
-
-An error occurred:
-circular-ref.twl
-Error at line -1 character -1.
-Circular reference detected when importing 'circular-ref2.twl'.

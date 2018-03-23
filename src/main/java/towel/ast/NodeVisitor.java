@@ -19,8 +19,6 @@ public interface NodeVisitor<T> {
 
     T visit(Import importNode);
 
-    T visit(FileImport fileImportNode);
-
     T visit(Let letNode);
 
     T visit(Array arrayNode);

@@ -11,35 +11,38 @@ import java.util.Map;
 public class Namespace {
 
     private Map<String, Object> identifiers = new HashMap<>();
-    private List<String> userDefinedNames = new ArrayList<>();
+    private List<String> publicMembers = new ArrayList<>();
 
     public void clear() {
         identifiers.clear();
     }
 
-    public String[] getNames() {
-        return userDefinedNames.toArray(new String[userDefinedNames.size()]);
+    public String[] getPublicMembers() {
+        return publicMembers.toArray(new String[publicMembers.size()]);
     }
 
+    /**
+     * Create a new Namespace, containing only public exportable names from this namespace
+     *
+     * @return a namespace containing only the public members of this namespace
+     */
     public Namespace exportPublicMembers() {
+
         Namespace export = new Namespace();
 
-        for (HashMap.Entry<String, Object> entry : identifiers.entrySet())
-        {
-            // export all user-defined functions and lets
-            if (entry.getValue() instanceof LetFunction || entry.getValue() instanceof UserDefinedFunction ) {
-                export.define(entry.getKey(), entry.getValue());
-            }
+        for (String name : getPublicMembers()) {
+            export.definePublicMember(name, get(name));
         }
 
         return export;
     }
 
-    public void define(String name, Object value) {
-        // everything that's been user defined in a particular namespace should be 'exported'
-        if (value instanceof LetFunction || value instanceof UserDefinedFunction) {
-            userDefinedNames.add(name);
-        }
+    public void definePublicMember(String name, Object value) {
+        publicMembers.add(name);
+        definePrivateMember(name, value);
+    }
+
+    public void definePrivateMember(String name, Object value) {
         identifiers.put(name, value);
     }
 

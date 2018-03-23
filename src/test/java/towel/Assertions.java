@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static towel.FileAwareLoggingErrorReporter.DEFAULT_LOG_NAME;
+import static towel.LoggingErrorReporter.DEFAULT_LOG_NAME;
 
 public class Assertions {
 
@@ -86,7 +86,7 @@ public class Assertions {
     public static void assertExecutesWithError(String expected, String code) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
 
         List<Token> tokens = new Lexer(code, reporter).tokenize();
         Program expr = new Parser(tokens, reporter).parse();
@@ -104,7 +104,7 @@ public class Assertions {
     public static void assertParsesWithError(String expected, String code) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
 
         List<Token> tokens = new Lexer(code, reporter).tokenize();
         Program expr = new Parser(tokens, reporter).parse();
@@ -123,7 +123,7 @@ public class Assertions {
     public static void assertExecutesWithAnyOneError(String code) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
 
         List<Token> tokens = new Lexer(code, reporter).tokenize();
         Program expr = new Parser(tokens, reporter).parse();
@@ -140,7 +140,7 @@ public class Assertions {
     public static void assertAnalysisWithError(String code, String... expectedError) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
 
         List<Token> tokens = new Lexer(code, reporter).tokenize();
         Program expr = new Parser(tokens, reporter).parse();
@@ -159,7 +159,7 @@ public class Assertions {
     public static void assertAnalysisWithNotice(String code, String... expectedError) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
 
         List<Token> tokens = new Lexer(code, reporter).tokenize();
         Program expr = new Parser(tokens, reporter).parse();

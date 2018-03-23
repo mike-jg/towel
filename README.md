@@ -160,6 +160,56 @@ This defines a function which requires two numbers to be at the top of the stack
 
 Pushing a string onto the stack and calling this function would result in a stack-assertion error, as the stack is not in the correct state.
 
+## Imports
+
+Imports are all done via the `import` keyword, like so:
+
+```
+// import the whole namespace, accessible via somenamespace.identifier
+import <somenamespace>
+
+//import just 'afunc' from the namespace
+import afunc <somenamespace>
+
+//import just 'afunc' but rename it 'newname'
+import afunc <somenamespace> as newname
+
+// import everything, bypassing the need to qualify references with a namespace
+import * from <somenamespace>
+```
+
+To import files within the same source directory, use the filename within a string literal:
+
+```
+import "myfile.twl"
+```
+
+To import files within a subdirectory, use `:` as a file separator like so:
+
+```
+import "subdir:myfile.twl"
+// everything within myfile will be available within the 'myfile' namespace
+```
+
+The filename must end with `.twl`.
+
+## Visibility modifiers
+
+When importing a file, all function `def`s and `let`s marked `public` will be imported. The `public `keyword must be placed before the `def`/`let` keyword:
+
+```
+public def myfunctiondef {
+    "this is public"
+}
+
+100 public let mylet
+
+// this will not be visible outside the namespace
+50 let privatelet
+```
+
+Everything else is considered private and will not be imported. There is no private keyword.
+
 ## To do
 
 - ☐ Documentation (ongoing)
@@ -175,6 +225,12 @@ Pushing a string onto the stack and calling this function would result in a stac
 - ☑ OR and AND operators
 - ☑ Lambdas - kind of, can be emulated by using sequences and `exec`
 - ☐ Standard library
+    - ☐ Maths
+        - ☑ `random` get a random number
+        - ☑ `pi` get pi
+        - ☑ `min` get the minimum number
+        - ☑ `max` get the maximum number
+        - ☑ `sqr` square
     - ☐ Sequence manipulation
         - ☑ `curry` prepend something onto a sequence
         - ☑ `exec` execute a sequence
@@ -200,8 +256,10 @@ Pushing a string onto the stack and calling this function would result in a stac
     - ☑ arrays
         - ☑ `pop` `push` `length` `map` operations
 - ☑ Importing standard library code
+    - ☑ standard library can comprise Java code as well as Towel code, including within the same namespace
 - ☑ Importing user-land code (needs work)
 - ☑ Namespaces (implicit based on filename)
+- ☑ Visibility modifiers (public, implicit private)
 - ☐ Declare function arguments i.e. how the stack should be presented when the function is called
     - ☑ For built in functions
     - ☑ User-land functions

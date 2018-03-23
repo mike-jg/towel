@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static towel.Token.TokenType.*;
+
 /**
  * Parse the tokens into an abstract syntax tree
  *
@@ -57,7 +59,7 @@ class Parser {
     Program parse() {
         while (true) {
             Token t = advance();
-            if (is(t, Token.TokenType.EOF)) {
+            if (is(t, EOF)) {
                 break;
             }
 
@@ -81,13 +83,7 @@ class Parser {
                 .map(Import.class::cast)
                 .collect(Collectors.toCollection(ArrayList<Import>::new));
 
-        List<FileImport> fileImports = nodes
-                .stream()
-                .filter(FileImport.class::isInstance)
-                .map(FileImport.class::cast)
-                .collect(Collectors.toCollection(ArrayList<FileImport>::new));
-
-        return new Program(namespace, nodes, imports, fileImports);
+        return new Program(namespace, nodes, imports);
     }
 
     private Node doParse(Token t) {
@@ -104,7 +100,7 @@ class Parser {
     }
 
     private boolean eof() {
-        return is(tokens.get(pos), Token.TokenType.EOF);
+        return is(tokens.get(pos), EOF);
     }
 
     /**
@@ -113,7 +109,7 @@ class Parser {
      * Otherwise return the current token and advance
      */
     private Token expect(Token.TokenType token, String message) {
-        if (peek().getType() != token) {
+        if (!isPeek(token)) {
             throw new ParseError(message, peek());
         }
         return advance();
@@ -155,7 +151,7 @@ class Parser {
                     throw new ParseError(String.format("Expecting type after '%s'.", token), peek());
             }
 
-            if (!is(peek(), Token.TokenType.COMMA)) {
+            if (!isPeek(COMMA)) {
                 break;
             }
             advance();
@@ -195,33 +191,41 @@ class Parser {
      * Functions are declared using the 'def' keyword, followed by a function name,
      * optional stack pre and post-conditions, then a mandatory body enclosed within curly braces
      *
+     * Optional prefix of 'public' to make things public
+     *
      * e.g.
      * def myfunc ( num, num, str -> void ) {  }
      */
     private Node function(Token token) {
 
-        if (!is(token, Token.TokenType.DEF)) {
-            return sequence(token);
+        if (!(is(token, PUBLIC) && isPeek(DEF)) && !is(token, DEF)) {
+            return let(token);
+        }
+
+        boolean isPublic = false;
+        if (is(token, PUBLIC)) {
+            isPublic = true;
+            advance();
         }
 
         List<Node> bodyNodes = new ArrayList<>();
 
-        Token name = expect(Token.TokenType.IDENTIFIER, "Expecting function name after 'def'.");
+        Token name = expect(IDENTIFIER, "Expecting function name after 'def'.");
 
         Class[] preConditions = TowelFunction.NO_STACK_CONDITION;
         Class[] postConditions = TowelFunction.NO_STACK_CONDITION;
 
-        if (is(peek(), Token.TokenType.LEFT_BRACKET)) {
+        if (isPeek(LEFT_BRACKET)) {
             advance();
             preConditions = gatherTypes("(");
-            expect(Token.TokenType.ARROW, "Expecting '->' after pre-conditions.");
+            expect(ARROW, "Expecting '->' after pre-conditions.");
             postConditions = gatherTypes("->");
-            expect(Token.TokenType.RIGHT_BRACKET, "Expecting closing bracket after pre-conditions and post-conditions.");
+            expect(RIGHT_BRACKET, "Expecting closing bracket after pre-conditions and post-conditions.");
         }
 
-        expect(Token.TokenType.LEFT_BRACE, "Expecting '{' after function signature definition.");
+        expect(LEFT_BRACE, "Expecting '{' after function signature definition.");
 
-        while (!eof() && !is(peek(), Token.TokenType.RIGHT_BRACE)) {
+        while (!eof() && !isPeek(RIGHT_BRACE)) {
             Node node = doParse(advance());
             bodyNodes.add(node);
         }
@@ -235,6 +239,7 @@ class Parser {
 
         return new Function(
                 name,
+                isPublic,
                 bodyNodes.toArray(new Node[0]),
                 preConditions,
                 postConditions
@@ -242,17 +247,37 @@ class Parser {
     }
 
     /**
+     * Let expects the optional 'public' keyword followed by 'let' followed by an identifier
+     */
+    private Node let(Token token) {
+
+        if (!(is(token, PUBLIC) && isPeek(LET)) && !is(token, LET)) {
+            return sequence(token);
+        }
+
+        boolean isPublic = false;
+        if (is(token, PUBLIC)) {
+            isPublic = true;
+            advance();
+        }
+
+        Token name = expect(IDENTIFIER, "Expecting identifier after 'let'.");
+
+        return new Let(name, isPublic);
+    }
+
+    /**
      * A sequence is just a list of things within curly braces, e.g.
      * { 4 5 + "in a sequence" }
      */
     private Node sequence(Token token) {
-        if (!is(token, Token.TokenType.LEFT_BRACE)) {
+        if (!is(token, LEFT_BRACE)) {
             return literal(token);
         }
 
         List<Node> nodes = new ArrayList<>();
 
-        while (!eof() && !is(peek(), Token.TokenType.RIGHT_BRACE)) {
+        while (!eof() && !isPeek(RIGHT_BRACE)) {
             Node node = doParse(advance());
             nodes.add(node);
         }
@@ -272,9 +297,9 @@ class Parser {
      */
     private Node literal(Token token) {
         if (is(token,
-                Token.TokenType.STRING_LITERAL,
-                Token.TokenType.NUMBER_LITERAL,
-                Token.TokenType.BOOLEAN_LITERAL)) {
+                STRING_LITERAL,
+                NUMBER_LITERAL,
+                BOOLEAN_LITERAL)) {
 
             return new Literal(token);
         }
@@ -287,11 +312,11 @@ class Parser {
      */
     private Node binaryOperator(Token token) {
         if (is(token,
-                Token.TokenType.PLUS,
-                Token.TokenType.MINUS,
-                Token.TokenType.STAR,
-                Token.TokenType.SLASH,
-                Token.TokenType.MOD)) {
+                PLUS,
+                MINUS,
+                STAR,
+                SLASH,
+                MOD)) {
             return new BinaryOperator(token);
         }
 
@@ -304,7 +329,7 @@ class Parser {
      * Equivalent to the classic 'if' and 'if then'
      */
     private Node condition(Token token) {
-        if (is(token, Token.TokenType.QUESTION_MARK, Token.TokenType.DOUBLE_QUESTION_MARK)) {
+        if (is(token, QUESTION_MARK, DOUBLE_QUESTION_MARK)) {
             return new Condition(token);
         }
 
@@ -317,14 +342,14 @@ class Parser {
     private Node comparison(Token token) {
 
         if (is(token,
-                Token.TokenType.LESS_THAN,
-                Token.TokenType.LESS_THAN_EQUAL,
-                Token.TokenType.EQUAL_EQUAL,
-                Token.TokenType.GREATER_THAN,
-                Token.TokenType.GREATER_THAN_EQUAL,
-                Token.TokenType.NOT_EQUAL,
-                Token.TokenType.OR,
-                Token.TokenType.AND)) {
+                LESS_THAN,
+                LESS_THAN_EQUAL,
+                EQUAL_EQUAL,
+                GREATER_THAN,
+                GREATER_THAN_EQUAL,
+                NOT_EQUAL,
+                OR,
+                AND)) {
             return new Comparison(token);
         }
 
@@ -335,41 +360,27 @@ class Parser {
      * An identifier, a function call or function name
      */
     private Node identifier(Token token) {
-        if (is(token, Token.TokenType.IDENTIFIER)) {
+        if (is(token, IDENTIFIER)) {
 
             Token namespace = null;
 
             // check for a dot following an identifier, this means
             // that it's a reference to an identifier contained in a namespace
 
-            if (is(peek(), Token.TokenType.DOT)) {
+            if (isPeek(DOT)) {
                 advance();
                 namespace = token;
-                token = expect(Token.TokenType.IDENTIFIER, "Expecting identifier after '.'.");
+                token = expect(IDENTIFIER, "Expecting identifier after '.'.");
             }
 
             return new Identifier(token, namespace);
         }
 
-        if (is(token, Token.TokenType.IMPORT)) {
+        if (is(token, IMPORT)) {
             return doImport(token);
         }
 
-        return let(token);
-    }
-
-    /**
-     * Let expects the keyword 'let' followed by an identifier
-     */
-    private Node let(Token token) {
-
-        if (!is(token, Token.TokenType.LET)) {
-            return array(token);
-        }
-
-        Token name = expect(Token.TokenType.IDENTIFIER, "Expecting identifier after 'let'.");
-
-        return new Let(name);
+        return array(token);
     }
 
     /**
@@ -380,7 +391,7 @@ class Parser {
      * Dangling comma is allowed
      */
     private Node array(Token token) {
-        if (!is(token, Token.TokenType.LEFT_SQ_BRACKET)) {
+        if (!is(token, LEFT_SQ_BRACKET)) {
             unexpectedToken(token);
         }
 
@@ -388,20 +399,20 @@ class Parser {
         Token next = advance();
 
         while (true) {
-            if (!is(next, Token.TokenType.NUMBER_LITERAL, Token.TokenType.BOOLEAN_LITERAL, Token.TokenType.STRING_LITERAL)) {
+            if (!is(next, NUMBER_LITERAL, BOOLEAN_LITERAL, STRING_LITERAL)) {
                 break;
             }
             initialContents.add(next.getLiteral());
             next = advance();
 
-            if (is(next, Token.TokenType.COMMA)) {
+            if (is(next, COMMA)) {
                 next = advance();
             } else {
                 break;
             }
         }
 
-        if (!is(next, Token.TokenType.RIGHT_SQ_BRACKET)) {
+        if (!is(next, RIGHT_SQ_BRACKET)) {
             throw new ParseError("Expecting closing ']' after array definition.", next);
         }
 
@@ -425,64 +436,73 @@ class Parser {
      */
     private Node doImport(Token token) {
 
-        if (is(peek(), Token.TokenType.STRING_LITERAL)) {
-            return fileImport(token);
-        }
-
         // import <io>
-        if (is(peek(), Token.TokenType.LESS_THAN)) {
-            advance();
-            Token namespace = expect(Token.TokenType.IDENTIFIER, "Expecting namespace identifier after <.");
-            expect(Token.TokenType.GREATER_THAN, "Expecting '>' after namespace identifier.");
-
-            Import _import = new Import(token, namespace.getLexeme(), Import.NO_TARGET, null);
-
-            return _import;
+        if (isPeek(LESS_THAN, STRING_LITERAL)) {
+            return new Import(token, getImportNamespace(), Import.NO_TARGET, null);
         }
 
         String[] target = getImportTarget();
         String alias = null;
 
-        expect(Token.TokenType.FROM, "Expecting 'from' after import target.");
-        expect(Token.TokenType.LESS_THAN, "Expecting <namespace> after import target.");
-        Token namespace = expect(Token.TokenType.IDENTIFIER, "Expecting namespace identifier after <.");
-        expect(Token.TokenType.GREATER_THAN, "Expecting '>' after namespace identifier.");
+        expect(FROM, "Expecting 'from' after import target.");
+
+        String namespace;
+        if (isPeek(LESS_THAN, STRING_LITERAL)) {
+            namespace = getImportNamespace();
+        } else {
+            throw new ParseError("Expecting namespace after 'from'.", peek());
+        }
 
         // import print from <io> as myprint
-        if (is(peek(), Token.TokenType.AS)) {
+        if (isPeek(AS)) {
             if (target[0].equals("*")) {
                 throw new ParseError("Cannot alias whole namespace.", peek());
             }
 
             advance();
-            alias = expect(Token.TokenType.IDENTIFIER, "Expecting identifier to use as alias after 'as'.").getLexeme();
+            alias = expect(IDENTIFIER, "Expecting identifier to use as alias after 'as'.").getLexeme();
         }
 
-
-        Import _import = new Import(token, namespace.getLexeme(), target, alias);
-
-        return _import;
+        return new Import(token, namespace, target, alias);
     }
 
-    private Node fileImport(Token token) {
-        Token file = expect(Token.TokenType.STRING_LITERAL, "Expecting string literal for file import.");
-        String fileName = file.getLiteral().toString();
+    private String getImportNamespace() {
+        String importNamespace;
+        boolean internalImport = isPeek(LESS_THAN);
 
-        if (!fileName.endsWith(".twl")) {
-            throw new ParseError("External fileImports must have the file suffix '.twl'.", peek());
+        if (internalImport) {
+            advance();
+            importNamespace = advance().getLexeme();
+            expect(GREATER_THAN, "Expecting '>' after namespace identifier.");
+        } else {
+            importNamespace = advance().getLiteral().toString();
+            assertValidImportFile(importNamespace);
         }
 
-        FileImport fileImport = new FileImport(token, file);
-        return fileImport;
+        return importNamespace;
+    }
+
+    private void assertValidImportFile(String file) {
+        if (!file.endsWith(".twl")) {
+            throw new ParseError("External file imports must end with '.twl'.", peek());
+        }
+        final String validChars = "abcdefghijklmnopqrstuvwxyz0123456789-_.:";
+
+        for (int i = 0; i < file.length(); i++) {
+            char character = file.charAt(i);
+            if (validChars.indexOf(character) < 0) {
+                throw new ParseError(String.format("Forbidden character in external file import: '%s' -> '%s'", file, character), peek());
+            }
+        }
     }
 
     private String[] getImportTarget() {
 
-        if (!is(peek(), Token.TokenType.STAR, Token.TokenType.IDENTIFIER)) {
+        if (!isPeek(STAR, IDENTIFIER)) {
             throw new ParseError("Expecting target after 'import'.", peek());
         }
 
-        if (is(peek(), Token.TokenType.STAR)) {
+        if (isPeek(STAR)) {
             return new String[]{advance().getLexeme()};
         }
 
@@ -491,14 +511,14 @@ class Parser {
         // import print, println from <io>
         while (true) {
 
-            if (is(peek(), Token.TokenType.STAR)) {
+            if (isPeek(STAR)) {
                 throw new ParseError("Cannot mix specific identifiers and '*' in import.", peek());
             }
 
-            if (is(peek(), Token.TokenType.IDENTIFIER)) {
+            if (isPeek(IDENTIFIER)) {
                 targets.add(advance().getLexeme());
 
-                if (is(peek(), Token.TokenType.COMMA)) {
+                if (isPeek(COMMA)) {
                     advance();
                     continue;
                 }
@@ -517,5 +537,9 @@ class Parser {
             }
         }
         return false;
+    }
+
+    private boolean isPeek(Token.TokenType... types) {
+        return is(peek(), types);
     }
 }

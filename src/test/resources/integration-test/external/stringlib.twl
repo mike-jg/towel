@@ -1,6 +1,6 @@
 import * from <strings>
 import dup from <stack>
 
-def palindrome (str -> bool) {
+public def palindrome (str -> bool) {
     lower dup reverse ==
 }

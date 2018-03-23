@@ -16,6 +16,7 @@ public class ClassMap {
         towel.stdlib.io.InputString.class,
         towel.stdlib.io.Print.class,
         towel.stdlib.io.PrintLn.class,
+        towel.stdlib.maths.Random.class,
         towel.stdlib.sequences.Curry.class,
         towel.stdlib.sequences.Exec.class,
         towel.stdlib.sequences.Repeat.class,

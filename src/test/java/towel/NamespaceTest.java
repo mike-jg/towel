@@ -16,13 +16,13 @@ public class NamespaceTest {
 
     @Test
     public void testDefineAndGet() {
-        env.define("blah", 100);
+        env.definePrivateMember("blah", 100);
         assertEquals(100, env.get("blah"));
     }
 
     @Test
     public void testIsDefined() {
-        env.define("blah", 100);
+        env.definePrivateMember("blah", 100);
         assertEquals(true, env.isDefined("blah"));
     }
 
@@ -38,8 +38,8 @@ public class NamespaceTest {
 
     @Test
     public void testClear() {
-        env.define("test", 5);
-        env.define("blah", 100);
+        env.definePrivateMember("test", 5);
+        env.definePrivateMember("blah", 100);
 
         assertEquals(true, env.isDefined("test"));
         assertEquals(true, env.isDefined("blah"));

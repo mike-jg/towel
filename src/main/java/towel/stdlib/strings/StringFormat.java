@@ -31,30 +31,30 @@ public class StringFormat implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
+    public void call(Interpreter interpreter) {
 
         int replacementIndex = 0;
         String replacementString = String.format("{%d}", replacementIndex);
 
-        if (interpreter.stack.size() == 0) {
+        if (interpreter.getStack().size() == 0) {
             throw new FunctionExecutionError("Format string error: stack is empty.");
         }
 
-        String targetString = interpreter.stack.pop().toString();
+        String targetString = interpreter.getStack().pop().toString();
 
         while (targetString.contains(replacementString)) {
 
-            if (interpreter.stack.size() == 0) {
+            if (interpreter.getStack().size() == 0) {
                 throw new FunctionExecutionError("Format string error: stack is empty.");
             }
 
-            Object insertionVal = interpreter.stack.pop();
+            Object insertionVal = interpreter.getStack().pop();
             targetString = targetString.replace(replacementString, insertionVal.toString());
 
             replacementIndex++;
             replacementString = String.format("{%d}", replacementIndex);
         }
 
-        interpreter.stack.push(targetString);
+        interpreter.getStack().push(targetString);
     }
 }

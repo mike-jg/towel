@@ -25,8 +25,8 @@ public class LetFunction implements TowelFunction, ExecuteInOriginalContext {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        interpreter.stack.push(value);
+    public void call(Interpreter interpreter) {
+        interpreter.getStack().push(value);
     }
 
     @Override

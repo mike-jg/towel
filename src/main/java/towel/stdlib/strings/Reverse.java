@@ -15,8 +15,8 @@ import towel.TowelFunction;
 public class Reverse implements TowelFunction {
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        String target = interpreter.stack.popString();
+    public void call(Interpreter interpreter) {
+        String target = interpreter.getStack().popString();
         char[] newStr = new char[target.length()];
 
         for (int i = target.length() - 1, c = 0; i >= c; i--, c++) {
@@ -24,7 +24,7 @@ public class Reverse implements TowelFunction {
             newStr[i] = target.charAt(c);
         }
 
-        interpreter.stack.push(new String(newStr));
+        interpreter.getStack().push(new String(newStr));
     }
 
     @Override

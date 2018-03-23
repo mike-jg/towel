@@ -17,9 +17,9 @@ import towel.ast.Sequence;
 public class Repeat implements TowelFunction {
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Sequence sequence = interpreter.stack.popSequence();
-        double times = interpreter.stack.popDouble();
+    public void call(Interpreter interpreter) {
+        Sequence sequence = interpreter.getStack().popSequence();
+        double times = interpreter.getStack().popDouble();
 
         while (times-- > 0) {
             for (Node e : sequence.getNodes()) {

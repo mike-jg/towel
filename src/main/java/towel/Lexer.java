@@ -1,6 +1,10 @@
 package towel;
 
+import towel.Token.TokenType;
+
 import java.util.*;
+
+import static towel.Token.TokenType.*;
 
 /**
  * Convert source code into a list of tokens
@@ -17,35 +21,36 @@ class Lexer {
     private int startCharacter = character;
     private final ErrorReporter reporter;
 
-    private final static Map<String, Token.TokenType> singleCharTokens = new HashMap<>();
-    private final static Map<String, Token.TokenType> keywords = new HashMap<>();
+    private final static Map<String, TokenType> singleCharTokens = new HashMap<>();
+    private final static Map<String, TokenType> keywords = new HashMap<>();
 
     static {
-        keywords.put("import", Token.TokenType.IMPORT);
-        keywords.put("from", Token.TokenType.FROM);
-        keywords.put("as", Token.TokenType.AS);
-        keywords.put("def", Token.TokenType.DEF);
-        keywords.put("let", Token.TokenType.LET);
-        keywords.put("num", Token.TokenType.NUM);
-        keywords.put("bool", Token.TokenType.BOOL);
-        keywords.put("str", Token.TokenType.STR);
-        keywords.put("seq", Token.TokenType.SEQ);
-        keywords.put("void", Token.TokenType.VOID);
-        keywords.put("any", Token.TokenType.ANY);
-        keywords.put("array", Token.TokenType.ARRAY);
-        singleCharTokens.put("{", Token.TokenType.LEFT_BRACE);
-        singleCharTokens.put("}", Token.TokenType.RIGHT_BRACE);
-        singleCharTokens.put("+", Token.TokenType.PLUS);
-        singleCharTokens.put("-", Token.TokenType.MINUS);
-        singleCharTokens.put("*", Token.TokenType.STAR);
-        singleCharTokens.put("/", Token.TokenType.SLASH);
-        singleCharTokens.put(",", Token.TokenType.COMMA);
-        singleCharTokens.put("%", Token.TokenType.MOD);
-        singleCharTokens.put("(", Token.TokenType.LEFT_BRACKET);
-        singleCharTokens.put(")", Token.TokenType.RIGHT_BRACKET);
-        singleCharTokens.put("[", Token.TokenType.LEFT_SQ_BRACKET);
-        singleCharTokens.put("]", Token.TokenType.RIGHT_SQ_BRACKET);
-        singleCharTokens.put(".", Token.TokenType.DOT);
+        keywords.put("import", IMPORT);
+        keywords.put("from", FROM);
+        keywords.put("as", AS);
+        keywords.put("def", DEF);
+        keywords.put("let", LET);
+        keywords.put("num", NUM);
+        keywords.put("bool", BOOL);
+        keywords.put("str", STR);
+        keywords.put("seq", SEQ);
+        keywords.put("void", VOID);
+        keywords.put("any", ANY);
+        keywords.put("array", ARRAY);
+        keywords.put("public", PUBLIC);
+        singleCharTokens.put("{", LEFT_BRACE);
+        singleCharTokens.put("}", RIGHT_BRACE);
+        singleCharTokens.put("+", PLUS);
+        singleCharTokens.put("-", MINUS);
+        singleCharTokens.put("*", STAR);
+        singleCharTokens.put("/", SLASH);
+        singleCharTokens.put(",", COMMA);
+        singleCharTokens.put("%", MOD);
+        singleCharTokens.put("(", LEFT_BRACKET);
+        singleCharTokens.put(")", RIGHT_BRACKET);
+        singleCharTokens.put("[", LEFT_SQ_BRACKET);
+        singleCharTokens.put("]", RIGHT_SQ_BRACKET);
+        singleCharTokens.put(".", DOT);
     }
 
     Lexer(String source, ErrorReporter reporter) {
@@ -77,16 +82,16 @@ class Lexer {
                 case "?":
                     if (peekIs("?")) {
                         advance();
-                        addToken(Token.TokenType.DOUBLE_QUESTION_MARK, "??");
+                        addToken(DOUBLE_QUESTION_MARK, "??");
                     } else {
-                        addToken(Token.TokenType.QUESTION_MARK, "?");
+                        addToken(QUESTION_MARK, "?");
                     }
                     break;
 
                 case "&":
                     if (peekIs("&")) {
                         advance();
-                        addToken(Token.TokenType.AND, "&&");
+                        addToken(AND, "&&");
                     } else {
                         syntaxError("Unexpected character '" + c + "'.");
                     }
@@ -95,7 +100,7 @@ class Lexer {
                 case "|":
                     if (peekIs("|")) {
                         advance();
-                        addToken(Token.TokenType.OR, "||");
+                        addToken(OR, "||");
                     } else {
                         syntaxError("Unexpected character '" + c + "'.");
                     }
@@ -104,45 +109,45 @@ class Lexer {
                 case "-":
                     if (peekIs(">")) {
                         advance();
-                        addToken(Token.TokenType.ARROW, "->");
+                        addToken(ARROW, "->");
                     } else if (numeric(peek())) {
                         parseNumber();
                     } else {
-                        addToken(Token.TokenType.MINUS);
+                        addToken(MINUS);
                     }
                     break;
 
                 case "<":
                     if (peekIs("=")) {
                         advance();
-                        addToken(Token.TokenType.LESS_THAN_EQUAL, "<=");
+                        addToken(LESS_THAN_EQUAL, "<=");
                     } else {
-                        addToken(Token.TokenType.LESS_THAN);
+                        addToken(LESS_THAN);
                     }
                     break;
 
                 case ">":
                     if (peekIs("=")) {
                         advance();
-                        addToken(Token.TokenType.GREATER_THAN_EQUAL, ">=");
+                        addToken(GREATER_THAN_EQUAL, ">=");
                     } else {
-                        addToken(Token.TokenType.GREATER_THAN);
+                        addToken(GREATER_THAN);
                     }
                     break;
 
                 case "=":
                     if (peekIs("=")) {
                         advance();
-                        addToken(Token.TokenType.EQUAL_EQUAL, "==");
+                        addToken(EQUAL_EQUAL, "==");
                     } else {
-                        addToken(Token.TokenType.EQUAL);
+                        addToken(EQUAL);
                     }
                     break;
 
                 case "!":
                     if (peekIs("=")) {
                         advance();
-                        addToken(Token.TokenType.NOT_EQUAL, "!=");
+                        addToken(NOT_EQUAL, "!=");
                     } else {
                         syntaxError("Unexpected character '" + c + "'.");
                     }
@@ -169,20 +174,20 @@ class Lexer {
             }
         }
 
-        tokens.add(new Token(Token.TokenType.EOF, "\0", "\0", line, character, pointer));
+        tokens.add(new Token(EOF, "\0", "\0", line, character, pointer));
 
         return tokens;
     }
 
-    private void addToken(Token.TokenType type) {
+    private void addToken(TokenType type) {
         addToken(type, source.substring(startPointer, pointer));
     }
 
-    private void addToken(Token.TokenType type, String lexeme) {
+    private void addToken(TokenType type, String lexeme) {
         addToken(type, lexeme, lexeme);
     }
 
-    private void addToken(Token.TokenType type, String lexeme, Object literal) {
+    private void addToken(TokenType type, String lexeme, Object literal) {
         tokens.add(new Token(type, lexeme, literal, startLine, startCharacter, startPointer));
     }
 
@@ -237,7 +242,7 @@ class Lexer {
                 }
             }
         } else {
-            addToken(Token.TokenType.SLASH, "/");
+            addToken(SLASH, "/");
         }
     }
 
@@ -273,11 +278,11 @@ class Lexer {
         String identifier = source.substring(startPointer, pointer);
 
         if (identifier.equals("true") || identifier.equals("false")) {
-            addToken(Token.TokenType.BOOLEAN_LITERAL, identifier, identifier.equals("true"));
+            addToken(BOOLEAN_LITERAL, identifier, identifier.equals("true"));
             return;
         }
 
-        Token.TokenType type = keywords.getOrDefault(identifier, Token.TokenType.IDENTIFIER);
+        TokenType type = keywords.getOrDefault(identifier, IDENTIFIER);
         addToken(type, identifier);
     }
 
@@ -300,7 +305,7 @@ class Lexer {
 
         String lexeme = source.substring(startPointer, pointer);
 
-        addToken(Token.TokenType.NUMBER_LITERAL, lexeme, Double.parseDouble(lexeme));
+        addToken(NUMBER_LITERAL, lexeme, Double.parseDouble(lexeme));
     }
 
     /**
@@ -370,7 +375,7 @@ class Lexer {
         String lexeme = source.substring(startPointer, pointer);
         String literal = source.substring(startPointer + 1, pointer - 1);
 
-        addToken(Token.TokenType.STRING_LITERAL, lexeme, canonicalizeString(literal));
+        addToken(STRING_LITERAL, lexeme, canonicalizeString(literal));
     }
 
     /**

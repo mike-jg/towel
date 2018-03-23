@@ -10,12 +10,18 @@ public class Function extends BaseNode {
     private final Node[] body;
     private final Class[] preConditions;
     private final Class[] postConditions;
+    private final boolean isPublic;
 
-    public Function(Token token, Node[] body, Class[] preConditions, Class[] postConditions) {
+    public Function(Token token, boolean isPublic, Node[] body, Class[] preConditions, Class[] postConditions) {
         super(token);
+        this.isPublic = isPublic;
         this.body = body;
         this.preConditions = preConditions;
         this.postConditions = postConditions;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
     }
 
     public Node[] getBody() {

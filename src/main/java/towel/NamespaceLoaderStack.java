@@ -1,7 +1,6 @@
 package towel;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.*;
 
 /**
  * A stack of loaders for namespaces, so multiple loaders can be treated as one
@@ -33,20 +32,24 @@ public class NamespaceLoaderStack implements NamespaceLoader {
     @Override
     public String[] getNamesInLibrary(String name) {
 
+        List<String> names = new ArrayList<>();
+
         for (NamespaceLoader loader : namespaceLoaders) {
+            // Don't return the first occurrence, gather all definitions from sub-loaders and return them all
+            // This makes it easy to definePrivateMember namespaces across a mixture of .twl files and .java files
             if (loader.hasLibrary(name)) {
-                return loader.getNamesInLibrary(name);
+                names.addAll(Arrays.asList(loader.getNamesInLibrary(name)));
             }
         }
 
-        return new String[0];
+        return names.toArray(new String[names.size()]);
     }
 
     @Override
     public TowelFunction getFunction(String namespace, String functionName) {
 
         for (NamespaceLoader loader : namespaceLoaders) {
-            if (loader.hasLibrary(namespace)) {
+            if (loader.hasLibrary(namespace) && loader.libraryContainsFunction(namespace, functionName)) {
                 return loader.getFunction(namespace, functionName);
             }
         }

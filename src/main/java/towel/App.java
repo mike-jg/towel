@@ -13,29 +13,26 @@ class App {
 
     private static PrintStream outputStream = System.out;
     private static Scanner scanner = new Scanner(System.in);
-    private static FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
-    private static NamespaceLoader loader = new NativeNamespaceLoader(outputStream, scanner);
+    private static LoggingErrorReporter reporter = new LoggingErrorReporter();
+    private static StdLibraryMapGenerator stdLibraryMapGenerator = new StdLibraryMapGenerator();
 
     public static void setPrintStream(PrintStream stream) {
         outputStream = stream;
-        loader = new NativeNamespaceLoader(outputStream, scanner);
-    }
-
-    public static void setScanner(Scanner scanner) {
-        App.scanner = scanner;
-        loader = new NativeNamespaceLoader(outputStream, scanner);
     }
 
     public static void reset() {
         scanner = new Scanner(System.in);
-        reporter = new FileAwareLoggingErrorReporter();
-        loader = new NativeNamespaceLoader(outputStream, scanner);
+        reporter = new LoggingErrorReporter();
+    }
+
+    public static void setStdLibraryMapGenerator(StdLibraryMapGenerator stdLibraryMapGenerator) {
+        App.stdLibraryMapGenerator = stdLibraryMapGenerator;
     }
 
     /**
      * Example usage:
      *
-     * $ java -jar ./target/towel-0.1.jar ./example/test.twl --print-ast "--tab-char=|   "
+     * $ java -jar ./target/towel-0.1.jar ./example/mytest.twl --print-ast "--tab-char=|   "
      */
     public static void main(String[] args) {
         Options options = new Options(args, outputStream);
@@ -43,7 +40,7 @@ class App {
 
         try {
             if (options.generateStdLibraryMap()) {
-                new StdLibraryMapGenerator().generate();
+                stdLibraryMapGenerator.generate();
                 return;
             }
 
@@ -66,9 +63,9 @@ class App {
         }
     }
 
-    private static void printLogEntries(Map<String, List<FileAwareLoggingErrorReporter.LogEntry>> entries) {
+    private static void printLogEntries(Map<String, List<LoggingErrorReporter.LogEntry>> entries) {
 
-        for (Map.Entry<String, List<FileAwareLoggingErrorReporter.LogEntry>> errorsInFile : entries.entrySet()) {
+        for (Map.Entry<String, List<LoggingErrorReporter.LogEntry>> errorsInFile : entries.entrySet()) {
 
             if (errorsInFile.getValue().isEmpty()) {
                 continue;
@@ -76,7 +73,7 @@ class App {
 
             outputStream.print(errorsInFile.getKey() + "\n");
 
-            for (FileAwareLoggingErrorReporter.LogEntry logEntry : errorsInFile.getValue()) {
+            for (LoggingErrorReporter.LogEntry logEntry : errorsInFile.getValue()) {
                 outputStream.print(logEntry.toString() + "\n");
             }
         }
@@ -90,7 +87,7 @@ class App {
         }
 
         SourceFileInterpreter sfi = new SourceFileInterpreter(
-                outputStream, reporter, loader, options
+                outputStream, scanner, reporter, options
         );
 
         sfi.interpret();

@@ -3,6 +3,16 @@ package towel;
 public class NullErrorReporter implements ErrorReporter {
 
     @Override
+    public boolean hasErrors() {
+        return false;
+    }
+
+    @Override
+    public boolean hasNotices() {
+        return false;
+    }
+
+    @Override
     public void notice(String message) {
 
     }

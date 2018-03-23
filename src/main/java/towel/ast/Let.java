@@ -5,9 +5,15 @@ import towel.Token;
 public class Let extends BaseNode implements Renameable {
 
     private String lookupName = null;
+    private final boolean isPublic;
 
-    public Let(Token name) {
+    public Let(Token name, boolean isPublic) {
         super(name);
+        this.isPublic = isPublic;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
     }
 
     @Override

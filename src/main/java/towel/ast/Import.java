@@ -24,20 +24,8 @@ public class Import extends BaseNode {
         this.alias = alias;
     }
 
-    public boolean isImportingWholeNamespace() {
-        return target.length == 0 && alias == null;
-    }
-
     public String getNamespace() {
         return namespace;
-    }
-
-    public boolean isStarImport() {
-        return target.length == 1 && target[0].equals("*");
-    }
-
-    public boolean isSingleImport() {
-        return target.length == 1 && !isStarImport();
     }
 
     public String[] getTarget() {
@@ -46,10 +34,6 @@ public class Import extends BaseNode {
 
     public String getAlias() {
         return alias;
-    }
-
-    public boolean isAliased() {
-        return alias != null;
     }
 
     @Override

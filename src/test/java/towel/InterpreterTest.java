@@ -13,13 +13,13 @@ public class InterpreterTest {
 
     @BeforeEach
     public void createProgram() {
-        program = new Program("", new ArrayList<Node>(), new ArrayList<Import>(), new ArrayList<FileImport>());
+        program = new Program("", new ArrayList<Node>(), new ArrayList<Import>());
     }
 
     @Test
     public void testInterpreterThrowsForNonExistentIdentifier() {
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
-        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new FileAwareLoggingErrorReporter());
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
+        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new LoggingErrorReporter());
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 Interpreter.InterpreterError.class,
@@ -29,23 +29,23 @@ public class InterpreterTest {
 
     @Test
     public void testInterpreterThrowsForDuplicateIdentifier() {
-        FileAwareLoggingErrorReporter reporter = new FileAwareLoggingErrorReporter();
+        LoggingErrorReporter reporter = new LoggingErrorReporter();
         Namespace env = new Namespace();
-        env.define("blah", true);
-        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new FileAwareLoggingErrorReporter(), env);
+        env.definePrivateMember("blah", true);
+        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new LoggingErrorReporter(), env);
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 Interpreter.InterpreterError.class,
-                () ->  interpreter.visit(new Function(new Token(Token.TokenType.DEF, "blah", "blah", -1, -1, -1), new Node[0], new Class[0], new Class[0]))
+                () ->  interpreter.visit(new Function(new Token(Token.TokenType.DEF, "blah", "blah", -1, -1, -1), true, new Node[0], new Class[0], new Class[0]))
         );
     }
 
     @Test
     public void testInterpreterThrowsForInvalidFunction() {
         Namespace env = new Namespace();
-        env.define("blah", true);
+        env.definePrivateMember("blah", true);
 
-        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new FileAwareLoggingErrorReporter(), env);
+        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new LoggingErrorReporter(), env);
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 RuntimeException.class,
@@ -56,10 +56,10 @@ public class InterpreterTest {
     @Test
     public void testInterpreterThrowsForInvalidBinaryOperator() {
 
-        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new FileAwareLoggingErrorReporter());
+        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new LoggingErrorReporter());
 
-        interpreter.stack.push(5d);
-        interpreter.stack.push(5d);
+        interpreter.getStack().push(5d);
+        interpreter.getStack().push(5d);
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 Interpreter.InterpreterError.class,
@@ -70,10 +70,10 @@ public class InterpreterTest {
     @Test
     public void testInterpreterThrowsForInvalidComparison() {
 
-        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new FileAwareLoggingErrorReporter());
+        Interpreter interpreter = new Interpreter(program, new NativeNamespaceLoader(System.out, new Scanner(System.in)), new LoggingErrorReporter());
 
-        interpreter.stack.push(5d);
-        interpreter.stack.push(5d);
+        interpreter.getStack().push(5d);
+        interpreter.getStack().push(5d);
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 Interpreter.InterpreterError.class,

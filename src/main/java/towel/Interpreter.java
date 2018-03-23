@@ -9,12 +9,32 @@ import java.util.Objects;
  */
 public class Interpreter implements NodeVisitor<Void> {
 
-    public final Stack stack = new Stack();
-    public final Program program;
-    private Namespace namespace;
+    /**
+     * Container for values in the running program
+     */
+    private final Stack stack = new Stack();
+
+    /**
+     * Root AST node
+     */
+    private final Program program;
+
+    /**
+     * The namespace loaders, for loading identifiers into the current namespace
+     */
     private final NamespaceLoaderStack loader = new NamespaceLoaderStack();
+
     private final ErrorReporter reporter;
 
+    /**
+     * Current namespace, containing lookups for identifiers
+     */
+    private Namespace namespace;
+
+    /**
+     * Thrown when an error is encountered, used only internally
+     * as it's easier to throw and unwind the stack to get out of an error condition and quit
+     */
     static class InterpreterError extends RuntimeException {
 
         final Token token;
@@ -30,6 +50,12 @@ public class Interpreter implements NodeVisitor<Void> {
         }
     }
 
+    /**
+     * @param program   the root ast node
+     * @param loader    default loader to use
+     * @param reporter  log errors to this
+     * @param namespace initial namespace config
+     */
     Interpreter(Program program, NamespaceLoader loader, ErrorReporter reporter, Namespace namespace) {
         this.program = Objects.requireNonNull(program);
         this.reporter = Objects.requireNonNull(reporter);
@@ -37,6 +63,11 @@ public class Interpreter implements NodeVisitor<Void> {
         this.namespace = namespace;
     }
 
+    /**
+     * @param program  the root ast node
+     * @param loader   default loader to use - probably a loader for the Java-based library
+     * @param reporter log errors to this
+     */
     Interpreter(Program program, NamespaceLoader loader, ErrorReporter reporter) {
         this(program, loader, reporter, new Namespace());
     }
@@ -63,17 +94,40 @@ public class Interpreter implements NodeVisitor<Void> {
         return null;
     }
 
+    /**
+     * Get the current stack
+     *
+     * @return the stack
+     */
+    public Stack getStack() {
+        return stack;
+    }
+
+    /**
+     * Get the current namespace
+     *
+     * @return the namespace
+     */
     public Namespace getNamespace() {
         return namespace;
     }
 
+    /**
+     * Visit the given program node. This could be the root program, or a 'sub program', which will then
+     * be loaded into a namespace loader to be queried later on in any import statements
+     */
     @Override
     public Void visit(Program programNode) {
 
-        Namespace oldns = null;
+        Namespace previousNamespace = null;
 
-        if (!programNode.isTopLevel()) {
-            oldns = namespace;
+        // Not root node, meaning this is not the entry point of the application.
+        //
+        // Create a new namespace to capture everything in this node,
+        // then it can be wrapped in a namespace loader to expose it to import statements.
+
+        if (!programNode.isRootNode()) {
+            previousNamespace = namespace;
             namespace = new Namespace();
         }
 
@@ -81,10 +135,13 @@ public class Interpreter implements NodeVisitor<Void> {
             node.accept(this);
         }
 
-        if (oldns != null) {
-            oldns.define(programNode.getNamespace(), namespace.exportPublicMembers());
-            loader.push(new ImportFileNamespaceLoader(programNode.getNamespace(), oldns.exportPublicMembers()));
-            namespace = oldns;
+        if (previousNamespace != null) {
+            if (programNode.isInternal()) {
+                loader.push(new InternalFileNamespaceLoader(programNode.getNamespace(), namespace.exportPublicMembers()));
+            } else {
+                loader.push(new UserFileNamespaceLoader(programNode.getNamespace(), namespace.exportPublicMembers()));
+            }
+            namespace = previousNamespace;
         }
 
         return null;
@@ -108,34 +165,34 @@ public class Interpreter implements NodeVisitor<Void> {
                 Double.class
         }, Stack.Conditions.PRE, binaryOperatorNode.getToken());
 
-        Object right = stack.popDouble();
-        Object left = stack.popDouble();
+        double right = stack.popDouble();
+        double left = stack.popDouble();
 
         switch (binaryOperatorNode.getTokenType()) {
             case PLUS:
-                stack.push((double) left + (double) right);
+                stack.push(left + right);
                 return null;
 
             case MINUS:
-                stack.push((double) left - (double) right);
+                stack.push(left - right);
                 return null;
 
             case STAR:
-                stack.push((double) left * (double) right);
+                stack.push(left * right);
                 return null;
 
             case MOD:
-                if ((double) right == 0) {
+                if (right == 0) {
                     throw new InterpreterError("Division by zero.", binaryOperatorNode.getToken());
                 }
-                stack.push((double) left % (double) right);
+                stack.push(left % right);
                 return null;
 
             case SLASH:
-                if ((double) right == 0) {
+                if (right == 0) {
                     throw new InterpreterError("Division by zero.", binaryOperatorNode.getToken());
                 }
-                stack.push((double) left / (double) right);
+                stack.push(left / right);
                 return null;
         }
 
@@ -317,15 +374,19 @@ public class Interpreter implements NodeVisitor<Void> {
             throw new InterpreterError("A function definition with the token '" + functionNode.getToken().getLexeme() + "' already exists.", functionNode.getToken());
         }
 
-        namespace.define(functionNode.getLexeme(),
-                new UserDefinedFunction(
-                        functionNode.getToken(),
-                        functionNode.getBody(),
-                        functionNode.getPreConditions(),
-                        functionNode.getPostConditions(),
-                        namespace
-                )
+        UserDefinedFunction function = new UserDefinedFunction(
+                functionNode.getToken(),
+                functionNode.getBody(),
+                functionNode.getPreConditions(),
+                functionNode.getPostConditions(),
+                namespace
         );
+
+        if (functionNode.isPublic()) {
+            namespace.definePublicMember(functionNode.getLexeme(), function);
+        } else {
+            namespace.definePrivateMember(functionNode.getLexeme(), function);
+        }
         return null;
     }
 
@@ -335,6 +396,41 @@ public class Interpreter implements NodeVisitor<Void> {
         // identifier visit is a function call, as even 'let' variables are
         // parsed into a function (one that just pushes its value onto the stack)
 
+        Namespace previousNamespace = null;
+
+        try {
+            TowelFunction function = getFunction(identifierNode);
+            stack.assertState(function.getPreConditions(), Stack.Conditions.PRE, identifierNode.getToken());
+
+            if (function instanceof ExecuteInOriginalContext) {
+                previousNamespace = namespace;
+                namespace = ((ExecuteInOriginalContext) function).getOriginalContext();
+            }
+
+            function.call(this);
+
+            stack.assertState(function.getPostConditions(), Stack.Conditions.POST, identifierNode.getToken());
+        } catch (FunctionExecutionError e) {
+
+            Token errorIdentifier = identifierNode.getToken();
+            if (identifierNode.isNamespaced()) {
+                errorIdentifier = identifierNode.getNamespaceToken();
+            }
+
+            throw new InterpreterError(e.getMessage(), errorIdentifier, e);
+        } finally {
+            if (previousNamespace != null) {
+                namespace = previousNamespace;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the function identified by 'identifierNode'
+     */
+    private TowelFunction getFunction(Identifier identifierNode) {
         Namespace targetNamespace = namespace;
 
         if (identifierNode.isNamespaced()) {
@@ -344,91 +440,58 @@ public class Interpreter implements NodeVisitor<Void> {
         if (!targetNamespace.isDefined(identifierNode.getName())) {
             throw new InterpreterError(String.format("Unknown identifier '%s'.", identifierNode.getName()), identifierNode.getToken());
         }
+
         Object target = targetNamespace.get(identifierNode.getName());
 
         if (!(target instanceof TowelFunction)) {
-            throw new IllegalArgumentException("Not a valid function.");
+            // This should really be impossible
+            throw new IllegalStateException("Not a valid function.");
         }
 
-        try {
-            TowelFunction t = ((TowelFunction) target);
-            stack.assertState(t.getPreConditions(), Stack.Conditions.PRE, identifierNode.getToken());
-
-            Namespace oldns = null;
-            if (t instanceof ExecuteInOriginalContext) {
-                oldns = namespace;
-                namespace = ((ExecuteInOriginalContext) t).getOriginalContext();
-            }
-
-            t.call(this, namespace);
-
-            if (oldns != null) {
-                namespace = oldns;
-            }
-
-            stack.assertState(t.getPostConditions(), Stack.Conditions.POST, identifierNode.getToken());
-        } catch (FunctionExecutionError e) {
-
-            Token errorIdentifier = identifierNode.getToken();
-            if (identifierNode.isNamespaced()) {
-                errorIdentifier = identifierNode.getNamespaceToken();
-            }
-
-            throw new InterpreterError(e.getMessage(), errorIdentifier, e);
-        }
-
-        return null;
+        return (TowelFunction) target;
     }
 
     @Override
     public Void visit(Import importNode) {
 
-        String namespace = importNode.getNamespace();
-        String[] funcNames = loader.getNamesInLibrary(namespace);
+        ImportNodeResolver adapter = ImportNodeResolver.wrap(importNode);
+
+        String[] funcNames = loader.getNamesInLibrary(adapter.getNamespace());
 
         for (String functionName : funcNames) {
 
             // import <io>
             // so take everything in <io> and add it to the namespace
             // with 'io.' prefix, e.g. io.print
-            if (importNode.isImportingWholeNamespace()) {
-                TowelFunction func = loader.getFunction(importNode.getNamespace(), functionName);
+            if (adapter.isImportingWholeNamespace()) {
+                TowelFunction func = loader.getFunction(adapter.getNamespace(), functionName);
 
-                if (!this.namespace.isDefined(importNode.getNamespace())) {
-                    this.namespace.define(importNode.getNamespace(), new Namespace());
+                if (!namespace.isDefined(adapter.getNormalized())) {
+                    namespace.definePrivateMember(adapter.getNormalized(), new Namespace());
                 }
 
-                this.namespace.getNamespace(importNode.getNamespace()).define(functionName, func);
+                namespace.getNamespace(adapter.getNormalized()).definePrivateMember(functionName, func);
             } else {
                 // there's a pattern such as
                 // import print from <io>
                 // import print, println from <io>
                 // import * from <io>
-                if (!matchesImportPattern(importNode, functionName)) {
+                if (!matchesImportPattern(adapter, functionName)) {
                     continue;
                 }
 
-                TowelFunction func = loader.getFunction(importNode.getNamespace(), functionName);
+                TowelFunction func = loader.getFunction(adapter.getNamespace(), functionName);
 
                 // check for an alias
                 // import print from <io> as my_print
-                String alias = importNode.isAliased()
-                        ? importNode.getAlias() : functionName;
+                String alias = adapter.isAliased()
+                        ? adapter.getAlias() : functionName;
 
-                this.namespace.define(alias, func);
+                namespace.definePrivateMember(alias, func);
             }
         }
 
         return null;
-    }
-
-    @Override
-    public Void visit(FileImport fileImportNode) {
-
-        // By the time the interpreter has access to the AST, file import nodes should have been
-        // expanded into their own Program node, with the parsed contents of the included file.
-
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -443,7 +506,11 @@ public class Interpreter implements NodeVisitor<Void> {
 
         final Object value = stack.pop();
 
-        namespace.define(letNode.getName(), new LetFunction(value, namespace));
+        if (letNode.isPublic()) {
+            namespace.definePublicMember(letNode.getName(), new LetFunction(value, namespace));
+        } else {
+            namespace.definePrivateMember(letNode.getName(), new LetFunction(value, namespace));
+        }
 
         return null;
     }
@@ -467,12 +534,12 @@ public class Interpreter implements NodeVisitor<Void> {
      *
      * Pattern is either a * or a function token like print, etc
      */
-    private boolean matchesImportPattern(Import _import, String func) {
-        if (_import.isStarImport()) {
+    private boolean matchesImportPattern(ImportNodeResolver adapter, String func) {
+        if (adapter.isStarImport()) {
             return true;
         }
 
-        for (String pattern : _import.getTarget()) {
+        for (String pattern : adapter.getTarget()) {
             if (pattern.equals(func)) {
                 return true;
             }

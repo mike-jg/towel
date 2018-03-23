@@ -36,5 +36,5 @@ public interface TowelFunction {
     /**
      * Execute the given function
      */
-    void call(Interpreter interpreter, Namespace namespace);
+    void call(Interpreter interpreter);
 }

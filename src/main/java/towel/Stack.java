@@ -31,28 +31,28 @@ public class Stack {
     }
 
     public String popString() {
-        return popAsType(String.class);
+        return this.<String>popAsType();
     }
 
     public boolean popBoolean() {
-        return popAsType(Boolean.class);
+        return this.<Boolean>popAsType();
     }
 
     public double popDouble() {
-        return popAsType(Double.class);
+        return this.<Double>popAsType();
     }
 
     public Sequence popSequence() {
-        return popAsType(Sequence.class);
+        return this.<Sequence>popAsType();
     }
 
     public TowelArray popArray() {
-        return popAsType(TowelArray.class);
+        return this.<TowelArray>popAsType();
     }
 
-    public <T> T popAsType(Class<T> type) {
-        Object requested = pop();
-        return type.cast(requested);
+    @SuppressWarnings("unchecked")
+    public <T> T popAsType() {
+        return (T) pop();
     }
 
     public int size() {

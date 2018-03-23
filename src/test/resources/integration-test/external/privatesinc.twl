@@ -1,0 +1,15 @@
+import * from <strings>
+import dup from <stack>
+// this should work from outside this namespace
+public def mypublic {
+    // this should work ok
+    myprivate
+}
+// this should not work
+def myprivate {
+    "noooooo"
+}
+
+
+15 let privateLet
+100 public let publicLet

@@ -1,0 +1,7 @@
+import pi from <maths> as mypi
+import sqr from <maths>
+import <io>
+
+9 sqr io.println
+
+mypi io.print

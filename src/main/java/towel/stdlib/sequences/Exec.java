@@ -28,8 +28,8 @@ public class Exec implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Sequence toExec = interpreter.stack.popSequence();
+    public void call(Interpreter interpreter) {
+        Sequence toExec = interpreter.getStack().popSequence();
 
         for (Node node : toExec.getNodes()) {
             node.accept(interpreter);

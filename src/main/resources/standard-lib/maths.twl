@@ -1,20 +1,20 @@
 
 import <stack>
 
-3.14159265359 let pi
+3.14159265359 public let pi
 
-def sqr ( num -> num ) {
+public def sqr ( num -> num ) {
     stack.dup *
 }
 
-def min ( num, num -> num ) {
+public def min ( num, num -> num ) {
     let a
     let b
 
     a b < { a } { b } ?
 }
 
-def max ( num, num -> num ) {
+public def max ( num, num -> num ) {
     let a
     let b
 

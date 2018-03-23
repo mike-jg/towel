@@ -21,8 +21,8 @@ public class Print implements TowelFunction, RequiresPrintStream {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        out.print(interpreter.stack.pop());
+    public void call(Interpreter interpreter) {
+        out.print(interpreter.getStack().pop());
     }
 
     @Override

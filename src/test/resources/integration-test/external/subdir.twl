@@ -1,0 +1,5 @@
+
+import * from "subdir:include.twl"
+import <io>
+
+myfunc io.print

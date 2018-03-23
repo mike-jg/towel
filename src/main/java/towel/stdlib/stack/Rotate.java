@@ -33,12 +33,12 @@ public class Rotate implements TowelFunction {
     }
 
     @Override
-    public void call(Interpreter interpreter, Namespace namespace) {
-        Object a = interpreter.stack.pop();
-        Object b = interpreter.stack.pop();
-        Object c = interpreter.stack.pop();
-        interpreter.stack.push(b);
-        interpreter.stack.push(a);
-        interpreter.stack.push(c);
+    public void call(Interpreter interpreter) {
+        Object a = interpreter.getStack().pop();
+        Object b = interpreter.getStack().pop();
+        Object c = interpreter.getStack().pop();
+        interpreter.getStack().push(b);
+        interpreter.getStack().push(a);
+        interpreter.getStack().push(c);
     }
 }

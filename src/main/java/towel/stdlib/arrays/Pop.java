@@ -1,6 +1,10 @@
 package towel.stdlib.arrays;
 
-import towel.*;
+import towel.LibraryMetadata;
+import towel.interpreter.FunctionExecutionError;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelArray;
+import towel.interpreter.TowelFunction;
 
 /**
  * Pop a value off an array, leaving it on top of the stack

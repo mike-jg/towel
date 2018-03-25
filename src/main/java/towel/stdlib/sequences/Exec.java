@@ -1,11 +1,9 @@
 package towel.stdlib.sequences;
 
-import towel.Interpreter;
 import towel.LibraryMetadata;
-import towel.Namespace;
-import towel.TowelFunction;
-import towel.ast.Node;
-import towel.ast.Sequence;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
+import towel.parser.Sequence;
 
 /**
  * Exec executes a sequence, interpreting each of its program in turn
@@ -30,10 +28,7 @@ public class Exec implements TowelFunction {
     @Override
     public void call(Interpreter interpreter) {
         Sequence toExec = interpreter.getStack().popSequence();
-
-        for (Node node : toExec.getNodes()) {
-            node.accept(interpreter);
-        }
+        interpreter.interpret(toExec.getNodes());
     }
 }
 

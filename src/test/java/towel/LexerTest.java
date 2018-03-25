@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import towel.parser.Lexer;
+import towel.parser.Token;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,11 +18,11 @@ import static towel.LoggingErrorReporter.DEFAULT_LOG_NAME;
 public class LexerTest {
 
     private Lexer createLexer(String source) {
-        return new Lexer(source, new ExceptionThrowingErrorReporter());
+        return Lexer.getFor(source, new ExceptionThrowingErrorReporter());
     }
 
     private Lexer createLexer(String source, ErrorReporter reporter) {
-        return new Lexer(source, reporter);
+        return Lexer.getFor(source, reporter);
     }
 
     @ParameterizedTest
@@ -118,11 +120,11 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.BOOLEAN_LITERAL, "true", true, 1, 1, 0),
-                new Token(Token.TokenType.BOOLEAN_LITERAL, "false", false, 1, 6, 5),
-                new Token(Token.TokenType.BOOLEAN_LITERAL, "false", false, 2, 1, 11),
-                new Token(Token.TokenType.BOOLEAN_LITERAL, "true", true, 2, 7, 17),
-                new Token(Token.TokenType.EOF, "\0", "\0", 2, 11, 21),
+                Token.create(Token.TokenType.BOOLEAN_LITERAL, "true", true, 1, 1, 0),
+                Token.create(Token.TokenType.BOOLEAN_LITERAL, "false", false, 1, 6, 5),
+                Token.create(Token.TokenType.BOOLEAN_LITERAL, "false", false, 2, 1, 11),
+                Token.create(Token.TokenType.BOOLEAN_LITERAL, "true", true, 2, 7, 17),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 2, 11, 21),
         };
 
         assertTokens(expect, tokens.toArray(new Token[0]));
@@ -135,9 +137,9 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.NUMBER_LITERAL, "5", 5d, 1, 1, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "100", 100d, 1, 3, 2),
-                new Token(Token.TokenType.EOF, "\0", "\0", 1, 6, 5),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "5", 5d, 1, 1, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "100", 100d, 1, 3, 2),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 1, 6, 5),
         };
 
         assertTokens(expect, tokens.toArray(new Token[0]));
@@ -150,8 +152,8 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.NUMBER_LITERAL, "-6", -6d, 1, 1, 0),
-                new Token(Token.TokenType.EOF, "\0", "\0", 1, 3, 2),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "-6", -6d, 1, 1, 0),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 1, 3, 2),
         };
 
         assertTokens(expect, tokens.toArray(new Token[0]));
@@ -165,9 +167,9 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.NUMBER_LITERAL, "1.90", 1.9d, 1, 1, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "5", 5d, 2, 1, 5),
-                new Token(Token.TokenType.EOF, "\0", "\0", 2, 2, 6),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "1.90", 1.9d, 1, 1, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "5", 5d, 2, 1, 5),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 2, 2, 6),
         };
 
         assertTokens(expect, tokens.toArray(new Token[0]));
@@ -180,14 +182,14 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.NUMBER_LITERAL, "1.5", 1.5d, 0, 0, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "534.33", 534.33d, 0, 0, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "-42.999", -42.999d, 0, 0, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "-80.0", -80d, 0, 0, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "5", 5d, 0, 0, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "50", 50d, 0, 0, 0),
-                new Token(Token.TokenType.NUMBER_LITERAL, "-7", -7d, 0, 0, 0),
-                new Token(Token.TokenType.EOF, "\0", "\0", 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "1.5", 1.5d, 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "534.33", 534.33d, 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "-42.999", -42.999d, 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "-80.0", -80d, 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "5", 5d, 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "50", 50d, 0, 0, 0),
+                Token.create(Token.TokenType.NUMBER_LITERAL, "-7", -7d, 0, 0, 0),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 0, 0, 0),
         };
 
         assertTokenTypesAndLiterals(expect, tokens.toArray(new Token[0]));
@@ -199,7 +201,7 @@ public class LexerTest {
 
         List<Token> tokens = lexer.tokenize();
 
-        Token expect = new Token(Token.TokenType.STRING_LITERAL, "\"string literal\"", "string literal", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.STRING_LITERAL, "\"string literal\"", "string literal", 1, 1, 0);
 
         assertEquals(2, tokens.size());
         assertToken(expect, tokens.get(0));
@@ -216,9 +218,9 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.STRING_LITERAL, "\"string literal\"", "string literal", 1, 2, 1),
-                new Token(Token.TokenType.STRING_LITERAL, "\"another\"", "another", 2, 2, 19),
-                new Token(Token.TokenType.EOF, "\0", "\0", 2, 11, 28),
+                Token.create(Token.TokenType.STRING_LITERAL, "\"string literal\"", "string literal", 1, 2, 1),
+                Token.create(Token.TokenType.STRING_LITERAL, "\"another\"", "another", 2, 2, 19),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 2, 11, 28),
         };
 
         assertTokens(expect, tokens.toArray(new Token[0]));
@@ -248,7 +250,7 @@ public class LexerTest {
     public void testSlash() {
         Lexer lexer = createLexer("/");
 
-        Token expect = new Token(Token.TokenType.SLASH, "/", "/", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.SLASH, "/", "/", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -261,7 +263,7 @@ public class LexerTest {
     public void testLeftBrace() {
         Lexer lexer = createLexer("{");
 
-        Token expect = new Token(Token.TokenType.LEFT_BRACE, "{", "{", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.LEFT_BRACE, "{", "{", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -274,7 +276,7 @@ public class LexerTest {
     public void testRightBrace() {
         Lexer lexer = createLexer("}");
 
-        Token expect = new Token(Token.TokenType.RIGHT_BRACE, "}", "}", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.RIGHT_BRACE, "}", "}", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -287,7 +289,7 @@ public class LexerTest {
     public void testArrow() {
         Lexer lexer = createLexer("->");
 
-        Token expect = new Token(Token.TokenType.ARROW, "->", "->", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.ARROW, "->", "->", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -300,7 +302,7 @@ public class LexerTest {
     public void testMinus() {
         Lexer lexer = createLexer("-");
 
-        Token expect = new Token(Token.TokenType.MINUS, "-", "-", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.MINUS, "-", "-", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -313,7 +315,7 @@ public class LexerTest {
     public void testPlus() {
         Lexer lexer = createLexer("+");
 
-        Token expect = new Token(Token.TokenType.PLUS, "+", "+", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.PLUS, "+", "+", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -326,7 +328,7 @@ public class LexerTest {
     public void testStar() {
         Lexer lexer = createLexer("*");
 
-        Token expect = new Token(Token.TokenType.STAR, "*", "*", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.STAR, "*", "*", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -339,7 +341,7 @@ public class LexerTest {
     public void testLessThan() {
         Lexer lexer = createLexer("<");
 
-        Token expect = new Token(Token.TokenType.LESS_THAN, "<", "<", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.LESS_THAN, "<", "<", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -352,7 +354,7 @@ public class LexerTest {
     public void testLessThanEqual() {
         Lexer lexer = createLexer("<=");
 
-        Token expect = new Token(Token.TokenType.LESS_THAN_EQUAL, "<=", "<=", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.LESS_THAN_EQUAL, "<=", "<=", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -365,7 +367,7 @@ public class LexerTest {
     public void testQuestionMark() {
         Lexer lexer = createLexer("?");
 
-        Token expect = new Token(Token.TokenType.QUESTION_MARK, "?", "?", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.QUESTION_MARK, "?", "?", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -378,7 +380,7 @@ public class LexerTest {
     public void testGreaterThan() {
         Lexer lexer = createLexer(">");
 
-        Token expect = new Token(Token.TokenType.GREATER_THAN, ">", ">", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.GREATER_THAN, ">", ">", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -391,7 +393,7 @@ public class LexerTest {
     public void testGreaterThanEqual() {
         Lexer lexer = createLexer(">=");
 
-        Token expect = new Token(Token.TokenType.GREATER_THAN_EQUAL, ">=", ">=", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.GREATER_THAN_EQUAL, ">=", ">=", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -405,7 +407,7 @@ public class LexerTest {
     public void testEqual() {
         Lexer lexer = createLexer("=");
 
-        Token expect = new Token(Token.TokenType.EQUAL, "=", "=", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.EQUAL, "=", "=", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -418,7 +420,7 @@ public class LexerTest {
     public void testEqualEqual() {
         Lexer lexer = createLexer("==");
 
-        Token expect = new Token(Token.TokenType.EQUAL_EQUAL, "==", "==", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.EQUAL_EQUAL, "==", "==", 1, 1, 0);
 
         List<Token> tokens = lexer.tokenize();
 
@@ -431,7 +433,7 @@ public class LexerTest {
     public void testNotEqual() {
         Lexer lexer = createLexer("!=");
 
-        Token expect = new Token(Token.TokenType.NOT_EQUAL, "!=", "!=", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.NOT_EQUAL, "!=", "!=", 1, 1, 0);
         List<Token> tokens = lexer.tokenize();
 
         assertEquals(2, tokens.size());
@@ -443,7 +445,7 @@ public class LexerTest {
     public void testImport() {
         Lexer lexer = createLexer("import");
 
-        Token expect = new Token(Token.TokenType.IMPORT, "import", "import", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.IMPORT, "import", "import", 1, 1, 0);
         List<Token> tokens = lexer.tokenize();
 
         assertEquals(2, tokens.size());
@@ -497,7 +499,7 @@ public class LexerTest {
     public void testDef() {
         Lexer lexer = createLexer("def");
 
-        Token expect = new Token(Token.TokenType.DEF, "def", "def", 1, 1, 0);
+        Token expect = Token.create(Token.TokenType.DEF, "def", "def", 1, 1, 0);
         List<Token> tokens = lexer.tokenize();
 
         assertEquals(2, tokens.size());
@@ -512,13 +514,13 @@ public class LexerTest {
         List<Token> tokens = lexer.tokenize();
 
         Token expect[] = {
-                new Token(Token.TokenType.IDENTIFIER, "some", "some", 0, 0, 0),
-                new Token(Token.TokenType.IDENTIFIER, "identifiers", "identifiers", 0, 0, 0),
-                new Token(Token.TokenType.IDENTIFIER, "here", "here", 0, 0, 0),
-                new Token(Token.TokenType.IDENTIFIER, "underscore_too", "underscore_too", 0, 0, 0),
-                new Token(Token.TokenType.IDENTIFIER, "PascalCase", "PascalCase", 0, 0, 0),
-                new Token(Token.TokenType.IDENTIFIER, "dash-in-identifier", "dash-in-identifier", 0, 0, 0),
-                new Token(Token.TokenType.EOF, "\0", "\0", 0, 0, 0),
+                Token.create(Token.TokenType.IDENTIFIER, "some", "some", 0, 0, 0),
+                Token.create(Token.TokenType.IDENTIFIER, "identifiers", "identifiers", 0, 0, 0),
+                Token.create(Token.TokenType.IDENTIFIER, "here", "here", 0, 0, 0),
+                Token.create(Token.TokenType.IDENTIFIER, "underscore_too", "underscore_too", 0, 0, 0),
+                Token.create(Token.TokenType.IDENTIFIER, "PascalCase", "PascalCase", 0, 0, 0),
+                Token.create(Token.TokenType.IDENTIFIER, "dash-in-identifier", "dash-in-identifier", 0, 0, 0),
+                Token.create(Token.TokenType.EOF, "\0", "\0", 0, 0, 0),
         };
 
         assertTokenTypesAndLiterals(expect, tokens.toArray(new Token[0]));

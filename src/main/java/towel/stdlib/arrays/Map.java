@@ -1,8 +1,10 @@
 package towel.stdlib.arrays;
 
-import towel.*;
-import towel.ast.Node;
-import towel.ast.Sequence;
+import towel.LibraryMetadata;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelArray;
+import towel.interpreter.TowelFunction;
+import towel.parser.Sequence;
 
 /**
  * Map a sequence against an array, modifying it in-place
@@ -37,9 +39,7 @@ public class Map implements TowelFunction {
         for (int i = 0; i < array.size(); i++) {
             Object val = array.get(i);
             interpreter.getStack().push(val);
-            for (Node node : sequence.getNodes()) {
-                node.accept(interpreter);
-            }
+            interpreter.interpret(sequence.getNodes());
             array.set(i, interpreter.getStack().pop());
         }
 

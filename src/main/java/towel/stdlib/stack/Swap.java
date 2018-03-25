@@ -1,9 +1,8 @@
 package towel.stdlib.stack;
 
-import towel.Interpreter;
 import towel.LibraryMetadata;
-import towel.Namespace;
-import towel.TowelFunction;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
 
 /**
  * Swap the top two values on the stack, so the stack changes as such:

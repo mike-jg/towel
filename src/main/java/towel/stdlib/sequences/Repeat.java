@@ -1,11 +1,9 @@
 package towel.stdlib.sequences;
 
-import towel.Interpreter;
 import towel.LibraryMetadata;
-import towel.Namespace;
-import towel.TowelFunction;
-import towel.ast.Node;
-import towel.ast.Sequence;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
+import towel.parser.Sequence;
 
 /**
  * Repeat will repeatedly execute a sequence for a given number of iterations
@@ -22,9 +20,7 @@ public class Repeat implements TowelFunction {
         double times = interpreter.getStack().popDouble();
 
         while (times-- > 0) {
-            for (Node e : sequence.getNodes()) {
-                e.accept(interpreter);
-            }
+            interpreter.interpret(sequence.getNodes());
         }
     }
 

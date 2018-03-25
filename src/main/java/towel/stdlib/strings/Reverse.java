@@ -1,9 +1,8 @@
 package towel.stdlib.strings;
 
-import towel.Interpreter;
 import towel.LibraryMetadata;
-import towel.Namespace;
-import towel.TowelFunction;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
 
 /**
  * Reverse a string

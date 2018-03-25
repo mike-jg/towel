@@ -1,6 +1,9 @@
 package towel.stdlib.strings;
 
-import towel.*;
+import towel.LibraryMetadata;
+import towel.interpreter.FunctionExecutionError;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
 
 /**
  * Format a string

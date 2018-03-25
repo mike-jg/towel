@@ -1,9 +1,8 @@
 package towel.stdlib.stack;
 
-import towel.Interpreter;
 import towel.LibraryMetadata;
-import towel.Namespace;
-import towel.TowelFunction;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
 
 /**
  * Rotate the top 3 stack items so the stack changes as such:

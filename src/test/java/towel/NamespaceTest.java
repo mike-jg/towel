@@ -2,6 +2,7 @@ package towel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import towel.interpreter.Namespace;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

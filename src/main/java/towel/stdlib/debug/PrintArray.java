@@ -1,7 +1,11 @@
 package towel.stdlib.debug;
 
 
-import towel.*;
+import towel.LibraryMetadata;
+import towel.interpreter.Interpreter;
+import towel.interpreter.RequiresPrintStream;
+import towel.interpreter.TowelArray;
+import towel.interpreter.TowelFunction;
 
 import java.io.PrintStream;
 

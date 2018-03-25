@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import towel.parser.Lexer;
+import towel.parser.Parser;
+import towel.parser.Token;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -18,8 +21,8 @@ public class ParserTest {
 
     private void createParser(String code) {
         reporter = new LoggingErrorReporter();
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        parser = new Parser(tokens, reporter);
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        parser = Parser.getFor(tokens, reporter);
     }
 
 

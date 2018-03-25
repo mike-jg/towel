@@ -1,9 +1,8 @@
 package towel.stdlib.maths;
 
-import towel.Interpreter;
 import towel.LibraryMetadata;
-import towel.Namespace;
-import towel.TowelFunction;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelFunction;
 
 /**
  * Generate a random number

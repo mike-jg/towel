@@ -1,6 +1,13 @@
 package towel;
 
-import towel.ast.Program;
+import towel.parser.Program;
+import towel.interpreter.Interpreter;
+import towel.interpreter.NamespaceLoader;
+import towel.interpreter.NativeNamespaceLoader;
+import towel.parser.Lexer;
+import towel.parser.Parser;
+import towel.parser.Token;
+import towel.pass.StaticPass;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,14 +42,14 @@ public class Assertions {
             reporter = new ExceptionThrowingErrorReporter();
         }
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        new StaticAnalyser(expr, reporter).performAnalysis();
+        StaticPass.getPass(expr, reporter).performAnalysis();
 
-        Object result = new Interpreter(expr, loader, reporter).interpret();
+        Object result = Interpreter.getFor(expr, loader, reporter).interpret();
         assertEquals(expected, result);
     }
 
@@ -72,14 +79,14 @@ public class Assertions {
             reporter = new ExceptionThrowingErrorReporter();
         }
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        new StaticAnalyser(expr, reporter).performAnalysis();
+        StaticPass.getPass(expr, reporter).performAnalysis();
 
-        Object result = new Interpreter(expr, loader, reporter).interpret();
+        Object result = Interpreter.getFor(expr, loader, reporter).interpret();
         assertEquals(expected, outputStream.toString());
     }
 
@@ -88,14 +95,14 @@ public class Assertions {
         PrintStream printStream = new PrintStream(outputStream);
         LoggingErrorReporter reporter = new LoggingErrorReporter();
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        new StaticAnalyser(expr, reporter).performAnalysis();
+        StaticPass.getPass(expr, reporter).performAnalysis();
 
-        Object result = new Interpreter(expr, loader, reporter).interpret();
+        Object result = Interpreter.getFor(expr, loader, reporter).interpret();
 
         assertEquals(1, reporter.getErrors().get(DEFAULT_LOG_NAME).size());
         assertEquals(expected, reporter.getErrors().get(DEFAULT_LOG_NAME).get(0).message);
@@ -106,8 +113,8 @@ public class Assertions {
         PrintStream printStream = new PrintStream(outputStream);
         LoggingErrorReporter reporter = new LoggingErrorReporter();
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
 
         assertEquals(1, reporter.getErrors().get(DEFAULT_LOG_NAME).size(), "Expecting: " + expected);
 
@@ -125,14 +132,14 @@ public class Assertions {
         PrintStream printStream = new PrintStream(outputStream);
         LoggingErrorReporter reporter = new LoggingErrorReporter();
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        new StaticAnalyser(expr, reporter).performAnalysis();
+        StaticPass.getPass(expr, reporter).performAnalysis();
 
-        Object result = new Interpreter(expr, loader, reporter).interpret();
+        Object result = Interpreter.getFor(expr, loader, reporter).interpret();
 
         assertEquals(1, reporter.getErrors().get(DEFAULT_LOG_NAME).size());
     }
@@ -142,10 +149,10 @@ public class Assertions {
         PrintStream printStream = new PrintStream(outputStream);
         LoggingErrorReporter reporter = new LoggingErrorReporter();
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
-        new StaticAnalyser(expr, reporter).performAnalysis();
+        StaticPass.getPass(expr, reporter).performAnalysis();
 
         assertEquals(expectedError.length, reporter.getErrors().get(DEFAULT_LOG_NAME).size());
 
@@ -161,10 +168,10 @@ public class Assertions {
         PrintStream printStream = new PrintStream(outputStream);
         LoggingErrorReporter reporter = new LoggingErrorReporter();
 
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        Program expr = new Parser(tokens, reporter).parse();
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        Program expr = Parser.getFor(tokens, reporter).parse();
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
-        new StaticAnalyser(expr, reporter).performAnalysis();
+        StaticPass.getPass(expr, reporter).performAnalysis();
 
         assertEquals(expectedError.length, reporter.getNotices().get(DEFAULT_LOG_NAME).size());
         int i = 0;

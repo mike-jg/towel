@@ -1,7 +1,10 @@
 package towel;
 
 import org.junit.jupiter.api.Test;
-import towel.ast.Program;
+import towel.parser.Program;
+import towel.parser.Lexer;
+import towel.parser.Parser;
+import towel.parser.Token;
 
 import java.util.List;
 
@@ -14,8 +17,8 @@ public class AstPrinterTest {
 
     private void createParser(String code) {
         reporter = new LoggingErrorReporter();
-        List<Token> tokens = new Lexer(code, reporter).tokenize();
-        parser = new Parser(tokens, reporter);
+        List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
+        parser = Parser.getFor(tokens, reporter);
     }
 
     private String parseAndReturnPrintedAst(String source) {
@@ -51,8 +54,8 @@ public class AstPrinterTest {
     public void testNonDefaultProgram() {
 
         reporter = new LoggingErrorReporter();
-        List<Token> tokens = new Lexer("def myfunc { 1 2 }", reporter).tokenize();
-        parser = new Parser(tokens, reporter, "mytest");
+        List<Token> tokens = Lexer.getFor("def myfunc { 1 2 }", reporter).tokenize();
+        parser = Parser.getFor(tokens, reporter, "mytest");
 
         Program expr = parser.parse();
         AstPrinter printer = new AstPrinter();

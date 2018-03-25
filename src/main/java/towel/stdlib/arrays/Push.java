@@ -1,6 +1,7 @@
 package towel.stdlib.arrays;
 
-import towel.*;
+import towel.LibraryMetadata;
+import towel.interpreter.*;
 
 /**
  * Push a value from the top of the stack, onto the following array

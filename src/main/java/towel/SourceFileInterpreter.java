@@ -1,7 +1,11 @@
 package towel;
 
-import towel.ast.Import;
-import towel.ast.Program;
+import towel.interpreter.ImportNodeResolver;
+import towel.interpreter.Interpreter;
+import towel.interpreter.NamespaceLoader;
+import towel.interpreter.NativeNamespaceLoader;
+import towel.parser.*;
+import towel.pass.StaticPass;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +23,7 @@ import java.util.Scanner;
  *
  * This will recursively interpret all external imports too
  *
- * As this was quickly thrown together to allow the recursive parsing of imports,
+ * As this was quickly thrown together to allow the recursive parser of imports,
  * it needs revisiting and tidying up
  *
  * @todo rethink how this works in general
@@ -161,26 +165,26 @@ public class SourceFileInterpreter {
     }
 
     private List<Token> lex(String source) {
-        Lexer lexer = new Lexer(source, reporter);
+        Lexer lexer = Lexer.getFor(source, reporter);
         List<Token> tokens = lexer.tokenize();
         assertErrorFree();
         return tokens;
     }
 
     private Program parse(List<Token> tokens, String namespace) {
-        Parser parser = new Parser(tokens, reporter, namespace);
+        Parser parser = Parser.getFor(tokens, reporter, namespace);
         Program prog = parser.parse();
         assertErrorFree();
         return prog;
     }
 
     private void analyze(Program program) {
-        new StaticAnalyser(program, reporter).performAnalysis();
+        StaticPass.getPass(program, reporter).performAnalysis();
         assertErrorFree();
     }
 
     private void runInterpreter(Program program) {
-        Interpreter interpreter = new Interpreter(program, loader, reporter);
+        Interpreter interpreter = Interpreter.getFor(program, loader, reporter);
         interpreter.interpret();
         assertErrorFree();
     }

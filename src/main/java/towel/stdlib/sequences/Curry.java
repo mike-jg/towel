@@ -1,10 +1,11 @@
 package towel.stdlib.sequences;
 
-import towel.*;
-import towel.ast.Array;
-import towel.ast.Literal;
-import towel.ast.Node;
-import towel.ast.Sequence;
+import towel.LibraryMetadata;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelArray;
+import towel.interpreter.TowelFunction;
+import towel.interpreter.TypeNameTranslator;
+import towel.parser.*;
 
 /**
  * Curry moves something onto the beginning of a sequence
@@ -45,8 +46,7 @@ public class Curry implements TowelFunction {
             for (int i = 0; i < initializer.length; i++) {
                 initializer[i] = array.get(i);
             }
-
-            nodes[0] = new Array(new Token(Token.TokenType.ARRAY, "", "", -1, -1, -1), initializer);
+            nodes[0] = new Array(Token.create(Token.TokenType.ARRAY, "", ""), initializer);
 
         } else if (anything instanceof Sequence) {
             nodes[0] = (Sequence) anything;
@@ -64,12 +64,12 @@ public class Curry implements TowelFunction {
                 throw new IllegalArgumentException(String.format("Cannot curry %s.", TypeNameTranslator.get(anything.getClass().getSimpleName())));
             }
 
-            nodes[0] = new Literal(new Token(type, anything.toString(), anything, -1, -1, -1));
+            nodes[0] = Literal.create(Token.create(type, anything.toString(), anything));
         }
 
         System.arraycopy(seq.getNodes(), 0, nodes, 1, seq.getNodes().length);
 
-        Sequence newSequence = new Sequence(seq.getToken(), nodes);
+        Sequence newSequence = Sequence.create(seq.getToken(), nodes);
         interpreter.getStack().push(newSequence);
     }
 }

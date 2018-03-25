@@ -1,6 +1,9 @@
 package towel.stdlib.arrays;
 
-import towel.*;
+import towel.LibraryMetadata;
+import towel.interpreter.Interpreter;
+import towel.interpreter.TowelArray;
+import towel.interpreter.TowelFunction;
 
 /**
  * Calculate the length of an array, and leave the length on top of the stack

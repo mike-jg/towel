@@ -2,6 +2,7 @@ package towel.stdlib.sequences;
 
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
 import towel.parser.Sequence;
 
@@ -14,15 +15,8 @@ import towel.parser.Sequence;
 )
 public class Exec implements TowelFunction {
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                Sequence.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Sequence.class);
     }
 
     @Override

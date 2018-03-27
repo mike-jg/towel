@@ -3,6 +3,7 @@ package towel.stdlib.strings;
 import towel.LibraryMetadata;
 import towel.interpreter.FunctionExecutionError;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
 
 /**
@@ -22,15 +23,8 @@ import towel.interpreter.TowelFunction;
 public class StringFormat implements TowelFunction {
 
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                String.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(String.class);
     }
 
     @Override

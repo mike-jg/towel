@@ -3,7 +3,7 @@ package towel;
 import java.io.PrintStream;
 
 /**
- * Quick and dirty to getLibrary command line args
+ * Quick and dirty to get command line args
  */
 class Options {
 

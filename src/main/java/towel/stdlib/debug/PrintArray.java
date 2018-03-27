@@ -2,10 +2,7 @@ package towel.stdlib.debug;
 
 
 import towel.LibraryMetadata;
-import towel.interpreter.Interpreter;
-import towel.interpreter.RequiresPrintStream;
-import towel.interpreter.TowelArray;
-import towel.interpreter.TowelFunction;
+import towel.interpreter.*;
 
 import java.io.PrintStream;
 
@@ -21,15 +18,8 @@ public class PrintArray implements TowelFunction, RequiresPrintStream {
     private PrintStream ps;
 
     @Override
-    public Class[] getPreConditions() {
-        return new Class[] {
-            TowelArray.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(TowelArray.class);
     }
 
     @Override

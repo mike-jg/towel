@@ -19,16 +19,6 @@ public class PrintStack implements TowelFunction, RequiresPrintStream {
     private PrintStream ps;
 
     @Override
-    public Class[] getPreConditions() {
-        return NO_STACK_CONDITION;
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
-    }
-
-    @Override
     public void call(Interpreter interpreter) {
         ps.print(interpreter.getStack().toString() + "\n");
     }

@@ -8,22 +8,22 @@ import towel.parser.Token;
  *
  * e.g. the def keyword
  */
-public class UserDefinedFunction implements TowelFunction, ExecuteInOriginalContext {
+class UserDefinedFunction implements TowelFunction, ExecuteInOriginalContext {
 
     private final Token name;
     private final Node[] body;
-    private final Class[] preConditions;
-    private final Class[] postConditions;
+    private final StackCondition.PreCondition preConditions;
+    private final StackCondition.PostCondition postConditions;
 
     /**
      * The context that this was defined in
-     *
+     * <p>
      * For functions included from other files they need
      * this so they have access to the imports/definitions in their declaring file
      */
     private final Namespace context;
 
-    public UserDefinedFunction(Token name, Node[] body, Class[] preConditions, Class[] postConditions, Namespace originalContext) {
+    UserDefinedFunction(Token name, Node[] body, StackCondition.PreCondition preConditions, StackCondition.PostCondition postConditions, Namespace originalContext) {
         this.name = name;
         this.body = body;
         this.preConditions = preConditions;
@@ -37,12 +37,12 @@ public class UserDefinedFunction implements TowelFunction, ExecuteInOriginalCont
     }
 
     @Override
-    public Class[] getPreConditions() {
+    public StackCondition.PreCondition getPreCondition() {
         return preConditions;
     }
 
     @Override
-    public Class[] getPostConditions() {
+    public StackCondition.PostCondition getPostCondition() {
         return postConditions;
     }
 

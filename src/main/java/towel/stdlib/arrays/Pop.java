@@ -1,10 +1,7 @@
 package towel.stdlib.arrays;
 
 import towel.LibraryMetadata;
-import towel.interpreter.FunctionExecutionError;
-import towel.interpreter.Interpreter;
-import towel.interpreter.TowelArray;
-import towel.interpreter.TowelFunction;
+import towel.interpreter.*;
 
 /**
  * Pop a value off an array, leaving it on top of the stack
@@ -15,15 +12,8 @@ import towel.interpreter.TowelFunction;
 )
 public class Pop implements TowelFunction {
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                TowelArray.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(TowelArray.class);
     }
 
     @Override

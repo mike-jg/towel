@@ -2,6 +2,7 @@ package towel.stdlib.strings;
 
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
 
 /**
@@ -27,15 +28,8 @@ public class Reverse implements TowelFunction {
     }
 
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                String.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(String.class);
     }
 }
 

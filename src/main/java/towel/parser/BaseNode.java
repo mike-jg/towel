@@ -6,7 +6,7 @@ public abstract class BaseNode implements Node {
 
     private final Token token;
 
-    public BaseNode(Token token) {
+    BaseNode(Token token) {
         this.token = Objects.requireNonNull(token);
     }
 

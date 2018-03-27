@@ -2,6 +2,7 @@ package towel.stdlib.maths;
 
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
 
 /**
@@ -16,15 +17,13 @@ public class Random implements TowelFunction {
     private java.util.Random random = new java.util.Random();
 
     @Override
-    public Class[] getPreConditions() {
-        return new Class[] {
-            Double.class, Double.class
-        };
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Double.class, Double.class);
     }
 
     @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PostCondition getPostCondition() {
+        return StackCondition.postConditionFor();
     }
 
     @Override

@@ -3,6 +3,7 @@ package towel.stdlib.io;
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
 import towel.interpreter.RequiresPrintStream;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
 
 import java.io.PrintStream;
@@ -30,14 +31,7 @@ public class PrintLn implements TowelFunction, RequiresPrintStream {
     }
 
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                Object.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Object.class);
     }
 }

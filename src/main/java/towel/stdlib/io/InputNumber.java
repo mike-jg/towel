@@ -1,10 +1,7 @@
 package towel.stdlib.io;
 
 import towel.LibraryMetadata;
-import towel.interpreter.Interpreter;
-import towel.interpreter.RequiresPrintStream;
-import towel.interpreter.RequiresScanner;
-import towel.interpreter.TowelFunction;
+import towel.interpreter.*;
 
 import java.io.PrintStream;
 import java.util.Scanner;
@@ -22,15 +19,13 @@ public class InputNumber implements TowelFunction, RequiresScanner, RequiresPrin
     private PrintStream outputStream;
 
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                String.class
-        };
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(String.class);
     }
 
     @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PostCondition getPostCondition() {
+        return StackCondition.postConditionFor();
     }
 
     @Override

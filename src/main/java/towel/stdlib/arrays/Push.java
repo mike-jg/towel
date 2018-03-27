@@ -12,16 +12,8 @@ import towel.interpreter.*;
 )
 public class Push implements TowelFunction {
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                Object.class,
-                TowelArray.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Object.class, TowelArray.class);
     }
 
     @Override

@@ -26,6 +26,10 @@ public abstract class ImportNodeResolver {
         }
     }
 
+    /**
+     *
+     * @return get the wrapped node
+     */
     protected final Import getNode() {
         return node;
     }

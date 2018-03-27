@@ -2,6 +2,7 @@ package towel.stdlib.arrays;
 
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelArray;
 import towel.interpreter.TowelFunction;
 import towel.parser.Sequence;
@@ -14,17 +15,10 @@ import towel.parser.Sequence;
         name = "map"
 )
 public class Map implements TowelFunction {
-    @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                Sequence.class,
-                TowelArray.class
-        };
-    }
 
     @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Sequence.class, TowelArray.class);
     }
 
     @Override

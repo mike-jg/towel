@@ -3,13 +3,17 @@ package towel.pass;
 import towel.ErrorReporter;
 import towel.parser.Program;
 
+/**
+ * Represents a pass over the AST
+ */
 public interface StaticPass {
 
-    void performAnalysis();
+    void performAnalysis(Program program);
 
-    static StaticPass getPass(Program program, ErrorReporter reporter) {
-        StaticPassStack stack = new StaticPassStack(program);
-        stack.addPass(new Resolver(reporter));
+    static StaticPass getDefaultPass(ErrorReporter reporter) {
+        StaticPassStack stack = new StaticPassStack();
+        stack.addPass(new ImportResolver(reporter));
+        stack.addPass(new ScopeResolver(reporter));
         return stack;
     }
 

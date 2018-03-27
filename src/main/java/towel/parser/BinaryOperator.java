@@ -5,7 +5,7 @@ package towel.parser;
  */
 public class BinaryOperator extends BaseNode {
 
-    public BinaryOperator(Token token) {
+    BinaryOperator(Token token) {
         super(token);
     }
 

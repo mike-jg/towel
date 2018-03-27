@@ -9,15 +9,20 @@ public class NamespaceLoaderStack implements NamespaceLoader {
 
     private final Deque<NamespaceLoader> namespaceLoaders = new ArrayDeque<>();
 
+    /**
+     * Add a new loader
+     *
+     * @param item the loader to add
+     */
     public void push(NamespaceLoader item) {
         namespaceLoaders.push(item);
     }
 
     @Override
-    public boolean hasLibrary(String name) {
+    public boolean hasNamespace(String name) {
 
         for (NamespaceLoader loader : namespaceLoaders) {
-            if (loader.hasLibrary(name)) {
+            if (loader.hasNamespace(name)) {
                 return true;
             }
         }
@@ -26,15 +31,15 @@ public class NamespaceLoaderStack implements NamespaceLoader {
     }
 
     @Override
-    public String[] getNamesInLibrary(String name) {
+    public String[] getPublicNamesInNamespace(String namespace) {
 
         List<String> names = new ArrayList<>();
 
         for (NamespaceLoader loader : namespaceLoaders) {
             // Don't return the first occurrence, gather all definitions from sub-loaders and return them all
-            // This makes it easy to definePrivateMember namespaces across a mixture of .twl files and .java files
-            if (loader.hasLibrary(name)) {
-                names.addAll(Arrays.asList(loader.getNamesInLibrary(name)));
+            // This makes it easy to define namespaces across a mixture of .twl files and .java files
+            if (loader.hasNamespace(namespace)) {
+                names.addAll(Arrays.asList(loader.getPublicNamesInNamespace(namespace)));
             }
         }
 
@@ -45,7 +50,7 @@ public class NamespaceLoaderStack implements NamespaceLoader {
     public TowelFunction getFunction(String namespace, String functionName) {
 
         for (NamespaceLoader loader : namespaceLoaders) {
-            if (loader.hasLibrary(namespace) && loader.libraryContainsFunction(namespace, functionName)) {
+            if (loader.hasNamespace(namespace) && loader.namespaceContainsFunction(namespace, functionName)) {
                 return loader.getFunction(namespace, functionName);
             }
         }
@@ -54,10 +59,10 @@ public class NamespaceLoaderStack implements NamespaceLoader {
     }
 
     @Override
-    public boolean libraryContainsFunction(String library, String func) {
+    public boolean namespaceContainsFunction(String namespace, String functionName) {
 
         for (NamespaceLoader loader : namespaceLoaders) {
-            if (loader.libraryContainsFunction(library, func)) {
+            if (loader.namespaceContainsFunction(namespace, functionName)) {
                 return true;
             }
         }

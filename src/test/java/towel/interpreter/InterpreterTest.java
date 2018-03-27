@@ -81,9 +81,18 @@ public class InterpreterTest {
         interpreter.getStack().push(5d);
         interpreter.getStack().push(5d);
 
+        Token comma = Token.create(Token.TokenType.COMMA, "*", "*", -1, -1, -1);
+
+        BinaryOperator ident = mock(BinaryOperator.class);
+        when(ident.getLexeme()).thenReturn("*");
+        when(ident.getLiteralAsString()).thenReturn("*");
+        when(ident.getTokenType()).thenReturn(comma.getType());
+        when(ident.getToken()).thenReturn(comma);
+        when(ident.accept(any())).thenCallRealMethod();
+
         org.junit.jupiter.api.Assertions.assertThrows(
                 ProgramInterpreter.InterpreterError.class,
-                () -> interpreter.interpret(new Node[]{ new BinaryOperator(Token.create(Token.TokenType.COMMA, "*", "*", -1, -1, -1))})
+                () -> interpreter.interpret(new Node[]{ ident })
         );
     }
 

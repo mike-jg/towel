@@ -1,0 +1,7 @@
+import println from <io>
+
+1 let test
+
+def myfunc {
+    import <maths>
+}

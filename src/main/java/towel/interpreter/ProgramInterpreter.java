@@ -5,6 +5,9 @@ import towel.parser.*;
 
 import java.util.Objects;
 
+/**
+ * Default interpreter
+ */
 class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
 
     /**
@@ -19,6 +22,10 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
 
     /**
      * The namespace loaders, for loading identifiers into the current namespace
+     * <p>
+     * These will generally look into a parsed Program node (that was expanded from an import), or a
+     * 'virtual' namespace comprised of exposed Java functionality
+     * </p>
      */
     private final NamespaceLoaderStack loader = new NamespaceLoaderStack();
 
@@ -160,10 +167,10 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
         // binary operators are all mathematical, so the
         // stack must have two numbers at the top
 
-        stack.assertState(new Class[]{
-                Double.class,
-                Double.class
-        }, Stack.Conditions.PRE, binaryOperatorNode.getToken());
+        stack.assertState(
+                StackCondition.preConditionFor(Double.class, Double.class),
+                binaryOperatorNode.getToken()
+        );
 
         double right = stack.popDouble();
         double left = stack.popDouble();
@@ -324,11 +331,13 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
      * This condition has two branches, e.g. a 'then' and an 'else'
      */
     private void branchedCondition(Condition node) {
-        stack.assertState(new Class[]{
-                Sequence.class,
-                Sequence.class,
-                Boolean.class
-        }, Stack.Conditions.PRE, node.getToken());
+        stack.assertState(
+                StackCondition.preConditionFor(
+                        Sequence.class,
+                        Sequence.class,
+                        Boolean.class),
+                node.getToken()
+        );
 
         Sequence elseBranch = stack.popSequence();
         Sequence thenBranch = stack.popSequence();
@@ -346,10 +355,12 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
      * This condition has one branch, so just a 'then', if the condition fails then nothing happens
      */
     private void singleBranchCondition(Condition node) {
-        stack.assertState(new Class[]{
-                Sequence.class,
-                Boolean.class
-        }, Stack.Conditions.PRE, node.getToken());
+        stack.assertState(
+                StackCondition.preConditionFor(
+                        Sequence.class,
+                        Boolean.class),
+                node.getToken()
+        );
 
         Sequence thenBranch = stack.popSequence();
         boolean condition = stack.popBoolean();
@@ -377,8 +388,8 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
         UserDefinedFunction function = new UserDefinedFunction(
                 functionNode.getToken(),
                 functionNode.getBody(),
-                functionNode.getPreConditions(),
-                functionNode.getPostConditions(),
+                StackCondition.preConditionFor(functionNode.getPreConditions()),
+                StackCondition.postConditionFor(functionNode.getPostConditions()),
                 namespace
         );
 
@@ -400,7 +411,7 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
 
         try {
             TowelFunction function = getFunction(identifierNode);
-            stack.assertState(function.getPreConditions(), Stack.Conditions.PRE, identifierNode.getToken());
+            stack.assertState(function.getPreCondition(), identifierNode.getToken());
 
             if (function instanceof ExecuteInOriginalContext) {
                 previousNamespace = namespace;
@@ -409,7 +420,7 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
 
             function.call(this);
 
-            stack.assertState(function.getPostConditions(), Stack.Conditions.POST, identifierNode.getToken());
+            stack.assertState(function.getPostCondition(), identifierNode.getToken());
         } catch (FunctionExecutionError e) {
 
             Token errorIdentifier = identifierNode.getToken();
@@ -456,7 +467,7 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
 
         ImportNodeResolver adapter = ImportNodeResolver.wrap(importNode);
 
-        String[] funcNames = loader.getNamesInLibrary(adapter.getNamespace());
+        String[] funcNames = loader.getPublicNamesInNamespace(adapter.getNamespace());
 
         for (String functionName : funcNames) {
 
@@ -500,9 +511,9 @@ class ProgramInterpreter implements Interpreter, NodeVisitor<Void> {
         // a let is converted into a function which pushes
         // the value of the let onto the stack when called
 
-        stack.assertState(new Class[]{
+        stack.assertState(StackCondition.preConditionFor(new Class[]{
                 Object.class
-        }, Stack.Conditions.PRE, letNode.getToken());
+        }), letNode.getToken());
 
         final Object value = stack.pop();
 

@@ -18,9 +18,32 @@ public class NativeNamespaceLoader implements NamespaceLoader {
     private final PrintStream stream;
     private final Scanner scanner;
 
+    /**
+     * The names of library functions are stored here, in the form:
+     * <pre>
+     * namespace -> function name -> implementation
+     *           -> function name -> implementation
+     *           -> function name -> implementation
+     *
+     * namespace -> function name -> implementation
+     *           -> function name -> implementation
+     * </pre>
+     * According to the classes annotation data provided by the {@code LibraryMetadata} annotation
+     *
+     * @see LibraryMetadata
+     */
     private final Map<String, Map<String, Class>> libraryMap = new HashMap<>();
+
+    /**
+     * Instances of library classes
+     */
     private final Map<String, Map<String, TowelFunction>> instanceMap = new HashMap<>();
 
+    /**
+     *
+     * @param stream the stream to inject into library functions, for outputting
+     * @param scanner the scanner to inject into library functions, for receiving input
+     */
     public NativeNamespaceLoader(PrintStream stream, Scanner scanner) {
         this.stream = Objects.requireNonNull(stream);
         this.scanner = Objects.requireNonNull(scanner);
@@ -35,18 +58,18 @@ public class NativeNamespaceLoader implements NamespaceLoader {
     }
 
     @Override
-    public boolean hasLibrary(String name) {
+    public boolean hasNamespace(String name) {
         return libraryMap.containsKey(name);
     }
 
     @Override
-    public String[] getNamesInLibrary(String name) {
-        assertLibrary(name);
-        return libraryMap.get(name).keySet().toArray(new String[0]);
+    public String[] getPublicNamesInNamespace(String namespace) {
+        assertLibrary(namespace);
+        return libraryMap.get(namespace).keySet().toArray(new String[0]);
     }
 
     private void assertLibrary(String name) {
-        if (!hasLibrary(name)) {
+        if (!hasNamespace(name)) {
             throw new MissingLibraryException(String.format("Specified library does not exist: '%s'.", name));
         }
     }
@@ -58,6 +81,9 @@ public class NativeNamespaceLoader implements NamespaceLoader {
         return instanceMap.get(namespace).get(functionName);
     }
 
+    /**
+     * If the given function isn't loaded, try to load it
+     */
     private void ensureLoaded(String libraryName, String functionName) {
         if (!instanceMap.containsKey(libraryName)) {
             instanceMap.put(libraryName, new HashMap<>());
@@ -69,6 +95,9 @@ public class NativeNamespaceLoader implements NamespaceLoader {
         }
     }
 
+    /**
+     * Load the given class
+     */
     private TowelFunction loadClass(Class<?> libClass) {
         try {
             TowelFunction function = (TowelFunction) libClass.getConstructor().newInstance();
@@ -82,6 +111,9 @@ public class NativeNamespaceLoader implements NamespaceLoader {
         }
     }
 
+    /**
+     * Add dependencies to the given function
+     */
     private void addDependencies(TowelFunction function) {
         if (function instanceof RequiresPrintStream) {
             ((RequiresPrintStream) function).setPrintStream(stream);
@@ -92,11 +124,11 @@ public class NativeNamespaceLoader implements NamespaceLoader {
     }
 
     @Override
-    public boolean libraryContainsFunction(String library, String func) {
-        if (!hasLibrary(library)) {
+    public boolean namespaceContainsFunction(String namespace, String functionName) {
+        if (!hasNamespace(namespace)) {
             return false;
         }
 
-        return libraryMap.get(library).containsKey(func);
+        return libraryMap.get(namespace).containsKey(functionName);
     }
 }

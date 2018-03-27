@@ -2,6 +2,7 @@ package towel.stdlib.stack;
 
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
 
 /**
@@ -18,17 +19,8 @@ import towel.interpreter.TowelFunction;
 )
 public class Rotate implements TowelFunction {
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                Object.class,
-                Object.class,
-                Object.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Object.class, Object.class, Object.class);
     }
 
     @Override

@@ -16,14 +16,14 @@ public class InternalFileNamespaceLoader implements NamespaceLoader {
     }
 
     @Override
-    public boolean hasLibrary(String name) {
+    public boolean hasNamespace(String name) {
         return fileNamespace.equals(name);
     }
 
     @Override
-    public String[] getNamesInLibrary(String name) {
-        if (hasLibrary(name)) {
-            return namespaceContents.getPublicMembers();
+    public String[] getPublicNamesInNamespace(String namespace) {
+        if (hasNamespace(namespace)) {
+            return namespaceContents.getPublicMemberNames();
         }
         return new String[0];
     }
@@ -37,7 +37,7 @@ public class InternalFileNamespaceLoader implements NamespaceLoader {
     }
 
     @Override
-    public boolean libraryContainsFunction(String library, String func) {
-        return fileNamespace.equals(library) && namespaceContents.isDefined(func);
+    public boolean namespaceContainsFunction(String namespace, String functionName) {
+        return fileNamespace.equals(namespace) && namespaceContents.isDefined(functionName);
     }
 }

@@ -2,6 +2,7 @@ package towel.stdlib.arrays;
 
 import towel.LibraryMetadata;
 import towel.interpreter.Interpreter;
+import towel.interpreter.StackCondition;
 import towel.interpreter.TowelArray;
 import towel.interpreter.TowelFunction;
 
@@ -14,15 +15,8 @@ import towel.interpreter.TowelFunction;
 )
 public class Length implements TowelFunction {
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                TowelArray.class
-        };
-    }
-
-    @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(TowelArray.class);
     }
 
     @Override

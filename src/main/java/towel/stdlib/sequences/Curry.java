@@ -1,10 +1,7 @@
 package towel.stdlib.sequences;
 
 import towel.LibraryMetadata;
-import towel.interpreter.Interpreter;
-import towel.interpreter.TowelArray;
-import towel.interpreter.TowelFunction;
-import towel.interpreter.TypeNameTranslator;
+import towel.interpreter.*;
 import towel.parser.*;
 
 /**
@@ -16,16 +13,13 @@ import towel.parser.*;
 )
 public class Curry implements TowelFunction {
     @Override
-    public Class[] getPreConditions() {
-        return new Class[]{
-                Sequence.class,
-                Object.class,
-        };
+    public StackCondition.PreCondition getPreCondition() {
+        return StackCondition.preConditionFor(Sequence.class, Object.class);
     }
 
     @Override
-    public Class[] getPostConditions() {
-        return NO_STACK_CONDITION;
+    public StackCondition.PostCondition getPostCondition() {
+        return StackCondition.postConditionFor();
     }
 
     @Override
@@ -46,7 +40,7 @@ public class Curry implements TowelFunction {
             for (int i = 0; i < initializer.length; i++) {
                 initializer[i] = array.get(i);
             }
-            nodes[0] = new Array(Token.create(Token.TokenType.ARRAY, "", ""), initializer);
+            nodes[0] = Array.create(Token.create(Token.TokenType.ARRAY, "", ""), initializer);
 
         } else if (anything instanceof Sequence) {
             nodes[0] = (Sequence) anything;

@@ -8,17 +8,31 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Performs a static analysis pass over the AST to spot problems
+ * <p>
+ * Performs a static analysis pass over the AST to resolve identifier names
+ * </p>
+ * <p>
+ * Resolves names by renaming them according to scope so that closures work correctly. In the below example
+ * {@code somevar} will be renamed within the function {@code sometest}, and the reference to it within the sequence will also
+ * be renamed. Without renaming like this, when the sequence is evaluated at runtime, the {@code somevar} reference would
+ * resolve to the outer definition, which would be incorrect.
+ * </p>
+ * <pre>
+ * "wrong" let somevar
  *
- * 'Resolves' names by renaming them according to scope so that closures work correctly
+ * def sometest {
+ *    "correct" let somevar
+ *    { somevar }
+ * }
  *
- * Stops a name being used twice <- temporarily removed until imports are tidied up
- * Stops invalid imports, e.g. non-existent names  <- temporarily removed until imports are tidied up
- * Raises a notice for unused names <- temporarily removed until imports are tidied up
+ * // prints 'correct'
+ * sometest exec print
+ * </pre>
  *
- * @todo forbid imports except at top of file
+ * @todo Stop a name being used twice
+ * @todo Raise a notice for unused names
  */
-class Resolver implements NodeVisitor<Void> {
+class ScopeResolver implements NodeVisitor<Void> {
 
     private static final String IDENTIFIER_RENAME_SCHEME = "%s$%s";
 
@@ -36,7 +50,7 @@ class Resolver implements NodeVisitor<Void> {
 
     private String currentFunctionName = null;
 
-    Resolver(ErrorReporter reporter) {
+    ScopeResolver(ErrorReporter reporter) {
         this.reporter = Objects.requireNonNull(reporter);
     }
 

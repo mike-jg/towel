@@ -10,18 +10,14 @@ import java.util.Objects;
 class StaticPassStack implements StaticPass {
 
     private final List<NodeVisitor<Void>> passes = new ArrayList<>();
-    private final Program program;
-
-    StaticPassStack(Program program) {
-        this.program = Objects.requireNonNull(program);
-    }
 
     void addPass(NodeVisitor<Void> pass) {
         passes.add(pass);
     }
 
     @Override
-    public void performAnalysis() {
+    public void performAnalysis(Program program) {
+        Objects.requireNonNull(program);
         passes.forEach(program::accept);
     }
 }

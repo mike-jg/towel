@@ -2,7 +2,6 @@ package towel.parser;
 
 import towel.ErrorReporter;
 import towel.interpreter.TowelArray;
-import towel.interpreter.TowelFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import static towel.parser.Token.TokenType.*;
 
 /**
  * Parse the tokens into an abstract syntax tree
- *
+ * <p>
  * Need to consider lexerless parser here, because the lexer has no context it adds
  * restrictions to the language. e.g. 'num' cannot be used as a function or let name because
  * it's used in the stack pre and post-condition checks and so it's a reserved word essentially.
@@ -162,7 +161,7 @@ class TokenParser implements Parser {
         if (conditions.size() > 1 && hasVoid) {
             throw new ParseError("Cannot specify 'void' with multiple types.", peek());
         } else if (hasVoid) {
-            return TowelFunction.NO_STACK_CONDITION;
+            return new Class[0];
         }
 
         // Reverse the conditions
@@ -211,8 +210,8 @@ class TokenParser implements Parser {
 
         Token name = expect(IDENTIFIER, "Expecting function name after 'def'.");
 
-        Class[] preConditions = TowelFunction.NO_STACK_CONDITION;
-        Class[] postConditions = TowelFunction.NO_STACK_CONDITION;
+        Class[] preConditions = new Class[0];
+        Class[] postConditions = new Class[0];
 
         if (isPeek(LEFT_BRACKET)) {
             advance();

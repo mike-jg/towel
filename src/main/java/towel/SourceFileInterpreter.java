@@ -27,6 +27,7 @@ import java.util.Scanner;
  * it needs revisiting and tidying up
  *
  * @todo rethink how this works in general
+ * @todo stop this reparsing and interpreting files which are included multiple times
  */
 public class SourceFileInterpreter {
 
@@ -51,7 +52,7 @@ public class SourceFileInterpreter {
 
     public void interpret() throws IOException {
         try {
-            dependencyGraph = new DependencyGraph(Paths.get(options.getFilename()).getFileName().toString());
+            dependencyGraph = new DependencyGraph(getFileName(options.getFilename()));
             final Program program = createProgram(Paths.get(options.getFilename()));
 
             if (options.printAst()) {
@@ -67,13 +68,11 @@ public class SourceFileInterpreter {
 
     private Program createProgram(Path file) throws IOException {
 
-        String filename = file.getFileName().toString();
+        String filename = getFileName(options.getFilename());
         String source = readFile(file.toAbsolutePath().toString());
         reporter.setContext(filename);
 
-        List<Token> tokens = lex(source);
-
-        Program program = parse(tokens, file.getFileName().toString().replace(".twl", ""));
+        Program program = runAstPipeline(source, file.getFileName().toString().replace(".twl", ""));
 
         List<Import> imports = program.getImports();
 
@@ -95,9 +94,6 @@ public class SourceFileInterpreter {
         }
 
         reporter.setContext(filename);
-
-        analyze(program);
-
         return program;
     }
 
@@ -143,6 +139,10 @@ public class SourceFileInterpreter {
         return fileName.getParent().toAbsolutePath().toString();
     }
 
+    private String getFileName(String file) {
+        return Paths.get(file).getFileName().toString();
+    }
+
     private void assertErrorFree() {
         if (reporter.hasErrors()) {
             throw new ProgramError();
@@ -164,6 +164,14 @@ public class SourceFileInterpreter {
         }
     }
 
+    private Program runAstPipeline(String source, String namespace) {
+        List<Token> tokens = lex(source);
+        Program program = parse(tokens, namespace);
+        analyze(program);
+
+        return program;
+    }
+
     private List<Token> lex(String source) {
         Lexer lexer = Lexer.getFor(source, reporter);
         List<Token> tokens = lexer.tokenize();
@@ -171,16 +179,16 @@ public class SourceFileInterpreter {
         return tokens;
     }
 
+    private void analyze(Program program) {
+        StaticPass.getDefaultPass(reporter).performAnalysis(program);
+        assertErrorFree();
+    }
+
     private Program parse(List<Token> tokens, String namespace) {
         Parser parser = Parser.getFor(tokens, reporter, namespace);
         Program prog = parser.parse();
         assertErrorFree();
         return prog;
-    }
-
-    private void analyze(Program program) {
-        StaticPass.getPass(program, reporter).performAnalysis();
-        assertErrorFree();
     }
 
     private void runInterpreter(Program program) {

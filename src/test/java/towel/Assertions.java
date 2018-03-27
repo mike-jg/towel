@@ -47,7 +47,7 @@ public class Assertions {
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        StaticPass.getPass(expr, reporter).performAnalysis();
+        StaticPass.getDefaultPass(reporter).performAnalysis(expr);
 
         Object result = Interpreter.getFor(expr, loader, reporter).interpret();
         assertEquals(expected, result);
@@ -84,7 +84,7 @@ public class Assertions {
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        StaticPass.getPass(expr, reporter).performAnalysis();
+        StaticPass.getDefaultPass(reporter).performAnalysis(expr);
 
         Object result = Interpreter.getFor(expr, loader, reporter).interpret();
         assertEquals(expected, outputStream.toString());
@@ -100,7 +100,7 @@ public class Assertions {
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        StaticPass.getPass(expr, reporter).performAnalysis();
+        StaticPass.getDefaultPass(reporter).performAnalysis(expr);
 
         Object result = Interpreter.getFor(expr, loader, reporter).interpret();
 
@@ -137,7 +137,7 @@ public class Assertions {
 
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
 
-        StaticPass.getPass(expr, reporter).performAnalysis();
+        StaticPass.getDefaultPass(reporter).performAnalysis(expr);
 
         Object result = Interpreter.getFor(expr, loader, reporter).interpret();
 
@@ -152,7 +152,7 @@ public class Assertions {
         List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
         Program expr = Parser.getFor(tokens, reporter).parse();
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
-        StaticPass.getPass(expr, reporter).performAnalysis();
+        StaticPass.getDefaultPass(reporter).performAnalysis(expr);
 
         assertEquals(expectedError.length, reporter.getErrors().get(DEFAULT_LOG_NAME).size());
 
@@ -171,7 +171,7 @@ public class Assertions {
         List<Token> tokens = Lexer.getFor(code, reporter).tokenize();
         Program expr = Parser.getFor(tokens, reporter).parse();
         NamespaceLoader loader = new NativeNamespaceLoader(printStream, scanner);
-        StaticPass.getPass(expr, reporter).performAnalysis();
+        StaticPass.getDefaultPass(reporter).performAnalysis(expr);
 
         assertEquals(expectedError.length, reporter.getNotices().get(DEFAULT_LOG_NAME).size());
         int i = 0;

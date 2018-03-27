@@ -8,20 +8,14 @@ import java.util.List;
 
 /**
  * Represent the stack, container for values in the running program
- *
- * The popAsType and pop* methods will be safe to use provided the stack has been asserted to contain
+ * <p>
+ * The {@code <T>popAsType} and {@code pop*} methods will be safe to use provided the stack has been asserted to contain
  * the correct types first
+ * </p>
  */
 public class Stack {
 
     private List<Object> stack = new ArrayList<>();
-
-    /**
-     * The type of condition to check
-     */
-    public static enum Conditions {
-        POST, PRE
-    }
 
     public void push(Object item) {
         stack.add(stack.size(), item);
@@ -52,14 +46,23 @@ public class Stack {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T popAsType() {
+    private <T> T popAsType() {
         return (T) pop();
     }
 
+    /**
+     *
+     * @return the current size of the stack
+     */
     public int size() {
         return stack.size();
     }
 
+    /**
+     * Get, but don't remove whatever is on top of the stack
+     *
+     * @return top of the stack
+     */
     public Object peek() {
         return stack.get(stack.size() - 1);
     }
@@ -74,31 +77,24 @@ public class Stack {
     }
 
     /**
-     * Assert that the the top N (where N is the length of expectedTypes) Objects in the stack, match the
-     * types contained within expectedTypes
+     * Assert the stack is in the state described by {@code StackCondition}
      *
-     * i.e.
-     * Parameters           Checked against
-     * expectedTypes[0]     Top of the stack - 0
-     * expectedTypes[1]     Top of the stack - 1
-     * expectedTypes[2]     Top of the stack - 2
-     * expectedTypes[3]     Top of the stack - 3
      */
-    public void assertState(Class[] expectedTypes, Conditions conditions, Token token) throws StackAssertionError {
-        if (expectedTypes.length == 0) {
+    public void assertState(StackCondition condition, Token token) throws StackAssertionError {
+        if (condition.length() == 0) {
             return;
         }
 
-        if (stack.size() < expectedTypes.length) {
-            throw new StackAssertionError(createErrorForInvalidState(expectedTypes, "length", conditions, token), token);
+        if (stack.size() < condition.length()) {
+            throw new StackAssertionError(createErrorForInvalidState(condition, "length", token), token);
         }
 
-        assertStack(expectedTypes.length, "Stack does not meet length preConditions.\n" +
-                "Length must be at least " + expectedTypes.length + ", current length is " + stack.size() + ".", token);
+        assertStack( condition.length(), "Stack does not meet length preConditions.\n" +
+                "Length must be at least " +  condition.length() + ", current length is " + stack.size() + ".", token);
 
-        for (int i = 0; i < expectedTypes.length; i++) {
-            if (!expectedTypes[i].isInstance(stack.get(stack.size() - 1 - i))) {
-                throw new StackAssertionError(createErrorForInvalidState(expectedTypes, "type", conditions, token), token);
+        for (int i = 0; i <  condition.length(); i++) {
+            if (! condition.condition()[i].isInstance(stack.get(stack.size() - 1 - i))) {
+                throw new StackAssertionError(createErrorForInvalidState(condition, "type", token), token);
             }
         }
     }
@@ -106,30 +102,30 @@ public class Stack {
     /**
      * Create a verbose error message for an invalid stack
      */
-    private String createErrorForInvalidState(Class[] expectedTypes, String error, Conditions conditions, Token token) {
+    private String createErrorForInvalidState(StackCondition condition, String error, Token token) {
 
         StringBuilder message = new StringBuilder("Stack does not meet ")
                 .append(error)
                 .append(" ")
-                .append(conditions == Conditions.POST ? "post-conditions" : "pre-conditions")
+                .append(condition.isPostCondition() ? "post-conditions" : "pre-conditions")
                 .append(" for ")
                 .append(token.getLexeme())
                 .append(".\n")
                 .append("Length must be at least ")
-                .append(expectedTypes.length)
+                .append(condition.length())
                 .append(", current length is ")
                 .append(stack.size())
                 .append(".");
 
-        if (expectedTypes.length > 0) {
+        if (condition.length() > 0) {
             message.append("\n");
         }
 
-        for (int i = 0; i < expectedTypes.length; i++) {
+        for (int i = 0; i < condition.length(); i++) {
             message.append("Item ")
                     .append(i)
                     .append(" from the top of the stack must be of type '")
-                    .append(TypeNameTranslator.get(expectedTypes[i]));
+                    .append(TypeNameTranslator.get(condition.condition()[i]));
 
             if (i < stack.size()) {
                 message.append("', '")
@@ -138,7 +134,7 @@ public class Stack {
             } else {
                 message.append("', nothing was found.");
             }
-            if (i + 1 < expectedTypes.length) {
+            if (i + 1 < condition.length()) {
                 message.append("\n");
             }
         }

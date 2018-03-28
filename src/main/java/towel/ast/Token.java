@@ -1,5 +1,8 @@
-package towel.parser;
+package towel.ast;
 
+/**
+ * @todo is this really necesary?
+ */
 public interface Token {
 
     int NO_OP_POSITION = -1;

@@ -1,11 +1,11 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * Operators such as - + / *
  */
 public class BinaryOperator extends BaseNode {
 
-    BinaryOperator(Token token) {
+    public BinaryOperator(Token token) {
         super(token);
     }
 

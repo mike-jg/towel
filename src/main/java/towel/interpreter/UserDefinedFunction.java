@@ -1,7 +1,7 @@
 package towel.interpreter;
 
-import towel.parser.Node;
-import towel.parser.Token;
+import towel.ast.Node;
+import towel.ast.Token;
 
 /**
  * Represents a user-land function definition

@@ -1,7 +1,7 @@
 package towel;
 
+import towel.ast.*;
 import towel.interpreter.ImportNodeResolver;
-import towel.parser.*;
 
 import java.util.Objects;
 

@@ -1,10 +1,10 @@
 package towel.stdlib.sequences;
 
 import towel.LibraryMetadata;
+import towel.ast.Sequence;
 import towel.interpreter.Interpreter;
 import towel.interpreter.StackCondition;
 import towel.interpreter.TowelFunction;
-import towel.parser.Sequence;
 
 /**
  * Repeat will repeatedly execute a sequence for a given number of iterations

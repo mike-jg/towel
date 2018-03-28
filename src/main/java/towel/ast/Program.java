@@ -1,9 +1,15 @@
-package towel.parser;
+package towel.ast;
 
 import java.util.List;
 import java.util.Objects;
 
-class ProgramNode implements Program {
+public class Program implements Node {
+
+    public static final String DEFAULT_NAMESPACE = "DEFAULTNS";
+
+    public enum ProgramType {
+        INTERNAL, USER
+    }
 
     private final String namespaceName;
     private final List<Node> nodes;
@@ -11,48 +17,40 @@ class ProgramNode implements Program {
     private boolean isRootNode = true;
     private ProgramType programType = ProgramType.USER;
 
-    ProgramNode(String namespaceName, List<Node> nodes, List<Import> imports) {
+    public Program(String namespaceName, List<Node> nodes, List<Import> imports) {
         this.namespaceName = Objects.requireNonNull(namespaceName);
         this.nodes = Objects.requireNonNull(nodes);
         this.imports = Objects.requireNonNull(imports);
     }
 
-    @Override
     public boolean isInternal() {
         return programType == ProgramType.INTERNAL;
     }
 
-    @Override
     public void setProgramType(ProgramType programType) {
         this.programType = programType;
     }
 
-    @Override
     public boolean isDefaultNamespace() {
         return namespaceName.equals(DEFAULT_NAMESPACE);
     }
 
-    @Override
     public boolean isRootNode() {
         return isRootNode;
     }
 
-    @Override
     public void notRootNode() {
         isRootNode = false;
     }
 
-    @Override
     public String getNamespace() {
         return namespaceName;
     }
 
-    @Override
     public List<Node> getNodes() {
         return nodes;
     }
 
-    @Override
     public List<Import> getImports() {
         return imports;
     }

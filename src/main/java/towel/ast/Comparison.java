@@ -1,11 +1,11 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * Operators such as == >= < >
  */
 public class Comparison extends BaseNode {
 
-    Comparison(Token token) {
+    public Comparison(Token token) {
         super(token);
     }
 

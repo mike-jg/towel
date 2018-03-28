@@ -1,8 +1,8 @@
 package towel.interpreter;
 
 import towel.ErrorReporter;
-import towel.parser.Node;
-import towel.parser.Program;
+import towel.ast.Node;
+import towel.ast.Program;
 
 public interface Interpreter {
 

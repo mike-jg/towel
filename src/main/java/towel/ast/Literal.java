@@ -1,4 +1,4 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * A literal, e.g. a number, string or boolean
@@ -9,13 +9,8 @@ package towel.parser;
  */
 public class Literal extends BaseNode {
 
-    Literal(Token token) {
+    public Literal(Token token) {
         super(token);
-    }
-
-    // @todo do something about this
-    public static Literal create(Token token) {
-        return new Literal(token);
     }
 
     @Override

@@ -1,10 +1,11 @@
 package towel.parser;
 
 import towel.ErrorReporter;
+import towel.ast.Token;
 
 import java.util.*;
 
-import static towel.parser.Token.TokenType.*;
+import static towel.ast.Token.TokenType.*;
 
 /**
  * Convert source code into a list of tokens

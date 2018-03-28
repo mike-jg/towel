@@ -1,8 +1,8 @@
-package towel.parser;
+package towel.ast;
 
 import java.util.Objects;
 
-public abstract class BaseNode implements Node {
+abstract class BaseNode implements Node {
 
     private final Token token;
 

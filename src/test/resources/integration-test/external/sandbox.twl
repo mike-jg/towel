@@ -1,10 +1,10 @@
 /*
-  maths.twl imports stringlib.twl, so this makes sure it's sandboxed and not available
+  maths.twl imports palindrome from stringlib.twl, so this makes sure it's sandboxed and not available
   to importers of maths.twl
 
-  i.e. you cannot access maths.stringlib
+  i.e. you cannot access maths.palindrome
 */
 import "maths.twl"
 import <io>
 
-"test" maths.stringlib io.print
+"test" maths.palindrome io.print

@@ -1,8 +1,8 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * An import
- *
+ * <p></p>
  * Keyword is the import token itself
  * Program is where the import is coming from
  * Target is the target to import, e.g. print, println, *
@@ -15,7 +15,7 @@ public class Import extends BaseNode {
     private final String alias;
     public final static String[] NO_TARGET = new String[0];
 
-    Import(Token keyword, String namespace, String targets[], String alias) {
+    public Import(Token keyword, String namespace, String targets[], String alias) {
         super(keyword);
         this.namespace = namespace;
         this.target = targets;

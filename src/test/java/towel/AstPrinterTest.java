@@ -1,10 +1,10 @@
 package towel;
 
 import org.junit.jupiter.api.Test;
-import towel.parser.Program;
+import towel.ast.Program;
+import towel.ast.Token;
 import towel.parser.Lexer;
 import towel.parser.Parser;
-import towel.parser.Token;
 
 import java.util.List;
 

@@ -1,10 +1,14 @@
 package towel;
 
+import towel.ast.Import;
+import towel.ast.Program;
+import towel.ast.Token;
 import towel.interpreter.ImportNodeResolver;
 import towel.interpreter.Interpreter;
 import towel.interpreter.NamespaceLoader;
 import towel.interpreter.NativeNamespaceLoader;
-import towel.parser.*;
+import towel.parser.Lexer;
+import towel.parser.Parser;
 import towel.pass.StaticPass;
 
 import java.io.File;
@@ -14,9 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Run the full 'pipeline' on a single source file
@@ -27,7 +29,6 @@ import java.util.Scanner;
  * it needs revisiting and tidying up
  *
  * @todo rethink how this works in general
- * @todo stop this reparsing and interpreting files which are included multiple times
  */
 public class SourceFileInterpreter {
 
@@ -37,23 +38,26 @@ public class SourceFileInterpreter {
     private Options options;
     private DependencyGraph dependencyGraph;
     private final static String STD_LIB_PATH = Paths.get("src/main/resources/standard-lib/").toAbsolutePath().toString();
+    private Map<SourceFile, Program> parsedFiles = new HashMap<>();
 
     private class ProgramError extends RuntimeException {
-        public ProgramError() {
+        ProgramError() {
         }
     }
 
-    public SourceFileInterpreter(PrintStream outputStream, Scanner scanner, ContextualErrorReporter reporter, Options options) {
+    SourceFileInterpreter(PrintStream outputStream, Scanner scanner, ContextualErrorReporter reporter, Options options) {
         this.outputStream = Objects.requireNonNull(outputStream);
         this.reporter = Objects.requireNonNull(reporter);
-        this.loader = new NativeNamespaceLoader(outputStream, scanner);
+        this.loader = new NativeNamespaceLoader(this.outputStream, Objects.requireNonNull(scanner));
         this.options = Objects.requireNonNull(options);
     }
 
     public void interpret() throws IOException {
         try {
-            dependencyGraph = new DependencyGraph(getFileName(options.getFilename()));
-            final Program program = createProgram(Paths.get(options.getFilename()));
+            SourceFile file = new SourceFile(Paths.get(options.getFilename()));
+
+            dependencyGraph = new DependencyGraph(file.getName());
+            final Program program = createProgram(file);
 
             if (options.printAst()) {
                 printAst(options, program);
@@ -66,20 +70,24 @@ public class SourceFileInterpreter {
         }
     }
 
-    private Program createProgram(Path file) throws IOException {
+    private Program createProgram(SourceFile sourceFile) throws IOException {
 
-        String filename = getFileName(options.getFilename());
-        String source = readFile(file.toAbsolutePath().toString());
+        if (parsedFiles.containsKey(sourceFile)) {
+            return parsedFiles.get(sourceFile);
+        }
+
+        String filename = sourceFile.getName();
+        String source = sourceFile.readAllContents();
         reporter.setContext(filename);
 
-        Program program = runAstPipeline(source, file.getFileName().toString().replace(".twl", ""));
+        Program program = runAstPipeline(source, sourceFile.getNamespace());
 
         List<Import> imports = program.getImports();
 
         for (Import importNode : imports) {
             int replacementLocation = program.getNodes().indexOf(importNode);
 
-            Program subProgram = parseImportIntoSubProgram(importNode, file);
+            Program subProgram = parseImportIntoSubProgram(importNode, sourceFile);
 
             // Add the parsed imported code just before the Import
             // This allows the Interpreter to go through the AST in order, and
@@ -94,10 +102,13 @@ public class SourceFileInterpreter {
         }
 
         reporter.setContext(filename);
+
+        parsedFiles.put(sourceFile, program);
+
         return program;
     }
 
-    private Program parseImportIntoSubProgram(Import importNode, Path rootFile) throws IOException {
+    private Program parseImportIntoSubProgram(Import importNode, SourceFile rootFile) throws IOException {
 
         Program subProgram = null;
 
@@ -110,9 +121,13 @@ public class SourceFileInterpreter {
 
             reporter.setContext(adapter.getNamespace());
 
-            assertNoCircularDependencies(rootFile.getFileName().toString(), adapter.getNamespace());
+            assertNoCircularDependencies(rootFile.getName(), adapter.getNamespace());
 
-            subProgram = createProgram(Paths.get(getPathToFile(rootFile), adapter.getFileName()));
+            // Create a new source file for the file name
+            // Always look relative to the current directory
+            SourceFile imported = new SourceFile(Paths.get(rootFile.getParentDirectory().toString(), adapter.getFileName()));
+
+            subProgram = createProgram(imported);
         } else {
             // Internal import, so this could be either a pure Java import, or importing a file
             // contained in the 'resources/standard-lib' directory. Java imports are handled
@@ -127,20 +142,12 @@ public class SourceFileInterpreter {
             reporter.setContext("Internal source file: " + adapter.getFileName());
             File libraryFile = new File(pathToFile.toString());
             if (libraryFile.exists() && !libraryFile.isDirectory()) {
-                subProgram = createProgram(pathToFile);
+                subProgram = createProgram(new SourceFile(pathToFile));
                 subProgram.setProgramType(Program.ProgramType.INTERNAL);
             }
         }
 
         return subProgram;
-    }
-
-    private String getPathToFile(Path fileName) {
-        return fileName.getParent().toAbsolutePath().toString();
-    }
-
-    private String getFileName(String file) {
-        return Paths.get(file).getFileName().toString();
     }
 
     private void assertErrorFree() {
@@ -200,10 +207,5 @@ public class SourceFileInterpreter {
     private void printAst(Options options, Program program) {
         AstPrinter printer = new AstPrinter(options.getTabChar());
         outputStream.print(printer.print(program));
-    }
-
-    private String readFile(String path) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, Charset.forName("utf-8"));
     }
 }

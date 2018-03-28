@@ -1,4 +1,4 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * A definition is a named sequence that must find and leave the stack in a pre-agreed form
@@ -10,7 +10,7 @@ public class Function extends BaseNode {
     private final Class[] postConditions;
     private final boolean isPublic;
 
-    Function(Token token, boolean isPublic, Node[] body, Class[] preConditions, Class[] postConditions) {
+    public Function(Token token, boolean isPublic, Node[] body, Class[] preConditions, Class[] postConditions) {
         super(token);
         this.isPublic = isPublic;
         this.body = body;

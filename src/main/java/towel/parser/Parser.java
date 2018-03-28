@@ -1,6 +1,8 @@
 package towel.parser;
 
 import towel.ErrorReporter;
+import towel.ast.Program;
+import towel.ast.Token;
 
 import java.util.List;
 

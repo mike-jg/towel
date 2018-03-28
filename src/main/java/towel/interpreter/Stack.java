@@ -1,7 +1,7 @@
 package towel.interpreter;
 
-import towel.parser.Sequence;
-import towel.parser.Token;
+import towel.ast.Sequence;
+import towel.ast.Token;
 
 import java.util.ArrayList;
 import java.util.List;

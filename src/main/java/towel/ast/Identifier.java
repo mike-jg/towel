@@ -1,17 +1,25 @@
-package towel.parser;
+package towel.ast;
 
-public class Let extends BaseNode implements Renameable {
+public class Identifier extends BaseNode implements Renameable {
 
     private String lookupName = null;
-    private final boolean isPublic;
+    private final Token namespace;
 
-    Let(Token name, boolean isPublic) {
-        super(name);
-        this.isPublic = isPublic;
+    public Identifier(Token token, Token namespace) {
+        super(token);
+        this.namespace = namespace;
     }
 
-    public boolean isPublic() {
-        return isPublic;
+    public Token getNamespaceToken() {
+        return namespace;
+    }
+
+    public boolean isNamespaced() {
+        return namespace != null;
+    }
+
+    public String getNamespace() {
+        return namespace.getLexeme();
     }
 
     @Override

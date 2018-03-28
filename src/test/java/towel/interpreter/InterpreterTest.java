@@ -3,7 +3,7 @@ package towel.interpreter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import towel.LoggingErrorReporter;
-import towel.parser.*;
+import towel.ast.*;
 
 import java.util.Scanner;
 

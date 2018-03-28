@@ -1,11 +1,11 @@
 package towel.stdlib.arrays;
 
 import towel.LibraryMetadata;
+import towel.ast.Sequence;
 import towel.interpreter.Interpreter;
 import towel.interpreter.StackCondition;
 import towel.interpreter.TowelArray;
 import towel.interpreter.TowelFunction;
-import towel.parser.Sequence;
 
 /**
  * Map a sequence against an array, modifying it in-place

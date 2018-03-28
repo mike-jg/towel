@@ -1,4 +1,4 @@
-package towel.parser;
+package towel.ast;
 
 public interface NodeVisitor<T> {
     T visit(Program programNode);

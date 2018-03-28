@@ -1,7 +1,7 @@
 package towel.pass;
 
 import towel.ErrorReporter;
-import towel.parser.*;
+import towel.ast.*;
 
 import java.util.HashMap;
 import java.util.Map;

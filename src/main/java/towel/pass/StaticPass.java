@@ -1,7 +1,7 @@
 package towel.pass;
 
 import towel.ErrorReporter;
-import towel.parser.Program;
+import towel.ast.Program;
 
 /**
  * Represents a pass over the AST

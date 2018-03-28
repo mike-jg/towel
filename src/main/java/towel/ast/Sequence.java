@@ -1,4 +1,4 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * Sequence of program to be executed later
@@ -9,14 +9,9 @@ public class Sequence extends BaseNode {
 
     private final Node[] nodes;
 
-    Sequence(Token token, Node[] nodes) {
+    public Sequence(Token token, Node[] nodes) {
         super(token);
         this.nodes = nodes;
-    }
-
-    // @todo do something about this
-    public static Sequence create(Token token, Node[] nodes) {
-        return new Sequence(token, nodes);
     }
 
     public Node[] getNodes() {

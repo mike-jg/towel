@@ -1,11 +1,11 @@
-package towel.parser;
+package towel.ast;
 
 /**
  * Conditionally executes a sequence based on a boolean value
  */
 public class Condition extends BaseNode {
 
-    Condition(Token token) {
+    public Condition(Token token) {
         super(token);
     }
 

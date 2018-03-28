@@ -1,7 +1,7 @@
 package towel.interpreter;
 
 import towel.ErrorReporter;
-import towel.parser.*;
+import towel.ast.*;
 
 import java.util.Objects;
 

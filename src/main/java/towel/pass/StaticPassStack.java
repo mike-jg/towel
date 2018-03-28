@@ -1,7 +1,7 @@
 package towel.pass;
 
-import towel.parser.NodeVisitor;
-import towel.parser.Program;
+import towel.ast.NodeVisitor;
+import towel.ast.Program;
 
 import java.util.ArrayList;
 import java.util.List;

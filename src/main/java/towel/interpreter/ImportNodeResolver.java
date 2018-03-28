@@ -1,6 +1,6 @@
 package towel.interpreter;
 
-import towel.parser.Import;
+import towel.ast.Import;
 
 import java.io.File;
 

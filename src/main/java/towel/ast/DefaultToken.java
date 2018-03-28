@@ -1,4 +1,4 @@
-package towel.parser;
+package towel.ast;
 
 class DefaultToken implements Token {
 

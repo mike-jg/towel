@@ -1,6 +1,6 @@
 package towel.interpreter;
 
-import towel.parser.Token;
+import towel.ast.Token;
 
 /**
  * Thrown if the stack fails an assertion or pre/post-condition check

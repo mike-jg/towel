@@ -1,6 +1,7 @@
 package towel.parser;
 
 import towel.ErrorReporter;
+import towel.ast.*;
 import towel.interpreter.TowelArray;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static towel.parser.Token.TokenType.*;
+import static towel.ast.Token.TokenType.*;
 
 /**
  * Parse the tokens into an abstract syntax tree
@@ -81,7 +82,7 @@ class TokenParser implements Parser {
                 .map(Import.class::cast)
                 .collect(Collectors.toCollection(ArrayList<Import>::new));
 
-        return new ProgramNode(namespace, nodes, imports);
+        return new Program(namespace, nodes, imports);
     }
 
     private Node doParse(Token t) {

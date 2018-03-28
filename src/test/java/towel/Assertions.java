@@ -1,12 +1,12 @@
 package towel;
 
-import towel.parser.Program;
+import towel.ast.Program;
+import towel.ast.Token;
 import towel.interpreter.Interpreter;
 import towel.interpreter.NamespaceLoader;
 import towel.interpreter.NativeNamespaceLoader;
 import towel.parser.Lexer;
 import towel.parser.Parser;
-import towel.parser.Token;
 import towel.pass.StaticPass;
 
 import java.io.ByteArrayInputStream;
